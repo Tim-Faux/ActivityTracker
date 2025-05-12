@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "ActivityTracker (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "ActivityTracker (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
