@@ -9,7 +9,7 @@ namespace ActivityTracker.Models
 		public SingleDay()
 		{
 			for (var i = 0; i < numberOfStaff; i++) {
-				AllStaffPerDay.Add(new Staff() { ClientNames = $"{i}", StaffNames = $"{i + numberOfStaff}" });
+				AllStaffPerDay.Add(new Staff());
 			}
 		}
 	}

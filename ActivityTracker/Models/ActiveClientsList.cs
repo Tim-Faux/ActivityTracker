@@ -1,9 +1,7 @@
-﻿using System.Collections.Generic;
-
-namespace ActivityTracker.Models
+﻿namespace ActivityTracker.Models
 {
     public class ActiveClientsList
     {
-		public required List<string> ActiveClients { get; set; }
+		public required ActiveClientsCount ActiveClientsCount { get; set; }
 	}
 }

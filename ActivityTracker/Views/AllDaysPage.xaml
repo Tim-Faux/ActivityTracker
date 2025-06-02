@@ -99,24 +99,14 @@
                         </ItemsView>
                     </Grid>
                 </ScrollViewer>
-                <TextBox x:Name="ClientsInActivities"
-                        Text="{x:Bind AllClients, Mode=OneWay}"
-                        AcceptsReturn="True"
-                        TextWrapping="Wrap"
-                        IsReadOnly="True"
-                        IsTabStop="False"
-                        Margin="15"
-                        BorderThickness="2"
-                        BorderBrush="LightGray"
-                        Background="White"
-                        Grid.Column="1">
-                    <TextBox.Resources>
-                        <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="White" />
-                        <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="White" />
-                        <SolidColorBrush x:Key="TextControlBorderBrushPointerOver" Color="LightGray" />
-                        <SolidColorBrush x:Key="TextControlBorderBrushFocused" Color="LightGray" />
-                    </TextBox.Resources>
-                </TextBox>
+                <Grid Grid.Column="1" Background="White" BorderBrush="LightGray" BorderThickness="2" Margin="15">
+                    <RichTextBlock x:Name="ClientsInActivities"
+                               IsTabStop="False"
+                               Margin="15"
+                               FocusVisualPrimaryBrush="White"
+                               TextWrapping="Wrap">
+                    </RichTextBlock>
+                </Grid>
             </Grid>
         </StackPanel>
     </StackPanel>

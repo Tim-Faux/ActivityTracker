@@ -3,6 +3,8 @@ using ActivityTracker.Messages;
 using ActivityTracker.Models;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Documents;
+using Microsoft.UI.Xaml.Media;
 
 namespace ActivityTracker.Views
 {
@@ -13,24 +15,38 @@ namespace ActivityTracker.Views
 		private SingleDay Wednesday = new();
 		private SingleDay Thursday = new();
 		private SingleDay Friday = new();
-        private string AllClients = "";
 
 		public AllDaysPage()
         {
 			WeakReferenceMessenger.Default.Register<ActiveClientsListUpdated>(this, (r, m) =>
 			{
-				UpdateClientsInActivityList(m.Value.ActiveClients);
+				UpdateClientsInActivityList(m.Value.ActiveClientsCount.GetClientDictionary());
 			});
 			this.InitializeComponent();
 		}
 
-		public void UpdateClientsInActivityList(List<string> clientsInActivity)
+		public void UpdateClientsInActivityList(Dictionary<string,int> clientsInActivity)
 		{
-			AllClients = string.Empty;
-			foreach (var client in clientsInActivity) {
-				AllClients += client + "\r";
+			var clients = clientsInActivity.Keys;
+			Paragraph paragraph = new Paragraph();
+			foreach (var client in clients) {
+				Run run = new Run();
+				if (clientsInActivity[client] > 3) {
+					run.Text += $"{client} X{clientsInActivity[client]}\r";
+					run.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 237, 67, 55));
+				}
+				else if (clientsInActivity[client] > 1) {
+					run.Text += $"{client} X{clientsInActivity[client]}\r";
+					run.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 255,193,7));
+				}
+				else {
+					run.Text += client + "\r";
+				}
+				paragraph.Inlines.Add(run);
 			}
-			ClientsInActivities.Text = AllClients;
+
+			ClientsInActivities.Blocks.Clear();
+			ClientsInActivities.Blocks.Add(paragraph);
 			
 		}
 	}
