@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="ActivityTracker.Views.AllDaysPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ActivityTracker.Views"
+    xmlns:models="using:ActivityTracker.Models"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Page.Resources>
+        <DataTemplate x:Key="SingleDayItemTemplate" x:DataType="models:Staff">
+            <ItemContainer IsTabStop="False">
+                <Grid IsTabStop="False">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="150"/>
+                    </Grid.RowDefinitions>
+                    <TextBox x:Name="StaffEditor"
+                        Text="{x:Bind StaffNames, Mode=TwoWay}"
+                        AcceptsReturn="False"
+                        Background="White"
+                        PlaceholderText="Enter your staff"
+                        Grid.Row="0"/>
+                    <TextBox x:Name="ClientEditor"
+                        Text="{x:Bind ClientNames, Mode=TwoWay}"
+                        AcceptsReturn="True"
+                        TextWrapping="Wrap"
+                        Background="LightGray"
+                        PlaceholderText="Enter your clients"
+                        ScrollViewer.VerticalScrollBarVisibility="Auto"
+                        Grid.Row="1"/>
+                </Grid>
+            </ItemContainer>
+        </DataTemplate>
+    </Page.Resources>
+    <StackPanel Orientation="Horizontal">
+        <StackPanel Orientation="Horizontal">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="200"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <ScrollViewer Grid.Column="0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="230"/>
+                            <ColumnDefinition Width="230"/>
+                            <ColumnDefinition Width="230"/>
+                            <ColumnDefinition Width="230"/>
+                            <ColumnDefinition Width="230"/>
+                        </Grid.ColumnDefinitions>
+
+                        <ItemsView ItemsSource="{x:Bind Monday.AllStaffPerDay}" 
+                                Margin="15"
+                                ItemTemplate="{StaticResource SingleDayItemTemplate}"
+                                Grid.Column="0">
+                                    <ItemsView.Layout>
+                                        <StackLayout Spacing="5"/>
+                                    </ItemsView.Layout>
+                        </ItemsView>
+
+                        <ItemsView ItemsSource="{x:Bind Tuesday.AllStaffPerDay}" 
+                                Margin="15"
+                                ItemTemplate="{StaticResource SingleDayItemTemplate}"
+                                Grid.Column="1">
+                                    <ItemsView.Layout>
+                                        <StackLayout Spacing="5"/>
+                                    </ItemsView.Layout>
+                        </ItemsView>
+
+                        <ItemsView ItemsSource="{x:Bind Wednesday.AllStaffPerDay}" 
+                                Margin="15"
+                                ItemTemplate="{StaticResource SingleDayItemTemplate}"
+                                Grid.Column="2">
+                                    <ItemsView.Layout>
+                                        <StackLayout Spacing="5"/>
+                                    </ItemsView.Layout>
+                        </ItemsView>
+
+                        <ItemsView ItemsSource="{x:Bind Thursday.AllStaffPerDay}" 
+                                Margin="15"
+                                ItemTemplate="{StaticResource SingleDayItemTemplate}"
+                                Grid.Column="3">
+                                    <ItemsView.Layout>
+                                        <StackLayout Spacing="5"/>
+                                    </ItemsView.Layout>
+                        </ItemsView>
+
+                        <ItemsView ItemsSource="{x:Bind Friday.AllStaffPerDay}" 
+                                Margin="15"
+                                ItemTemplate="{StaticResource SingleDayItemTemplate}"
+                                Grid.Column="4">
+                                    <ItemsView.Layout>
+                                        <StackLayout Spacing="5"/>
+                                    </ItemsView.Layout>
+                        </ItemsView>
+                    </Grid>
+                </ScrollViewer>
+                <Grid Grid.Column="1"  Margin="15, 15, 15, 50">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid Background="White" BorderBrush="LightGray" BorderThickness="2" Margin="0, 0, 0, 15">
+                        <RichTextBlock x:Name="ClientsInActivities"
+                               IsTabStop="False"
+                               Margin="15"
+                               FocusVisualPrimaryBrush="White"
+                               TextWrapping="Wrap"
+                               Grid.Row="0">
+                        </RichTextBlock>
+                    </Grid>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="1" Spacing="10">
+                        <Button Content="Save" Width="75" Click="SaveToDocument"/>
+                        <Button Content="Clear" Width="75" Click="ClearData"/>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </StackPanel>
+    </StackPanel>
+</Page>
