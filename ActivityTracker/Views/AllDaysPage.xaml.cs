@@ -2,9 +2,11 @@ using System.Collections.Generic;
 using ActivityTracker.Messages;
 using ActivityTracker.Models;
 using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Documents;
 using Microsoft.UI.Xaml.Media;
+using Windows.Storage;
 
 namespace ActivityTracker.Views
 {
@@ -15,6 +17,7 @@ namespace ActivityTracker.Views
 		private SingleDay Wednesday = new();
 		private SingleDay Thursday = new();
 		private SingleDay Friday = new();
+		private StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
 
 		public AllDaysPage()
         {
@@ -47,7 +50,33 @@ namespace ActivityTracker.Views
 
 			ClientsInActivities.Blocks.Clear();
 			ClientsInActivities.Blocks.Add(paragraph);
-			
+		}
+
+		public void ClearData(object sender, RoutedEventArgs e)
+		{
+			Monday.AllStaffPerDay.Clear();
+			Monday.CreateAllStaffPerDayList();
+
+			Tuesday.AllStaffPerDay.Clear();
+			Tuesday.CreateAllStaffPerDayList();
+
+			Wednesday.AllStaffPerDay.Clear();
+			Wednesday.CreateAllStaffPerDayList();
+
+			Thursday.AllStaffPerDay.Clear();
+			Thursday.CreateAllStaffPerDayList();
+
+			Friday.AllStaffPerDay.Clear();
+			Friday.CreateAllStaffPerDayList();
+
+			ClientsInActivities.Blocks.Clear();
+			AllClients.ClearAllClientsCount();
+		}
+
+		public void SaveToDocument(object sender, RoutedEventArgs e)
+		{
+			string fileName = "note.docx";
+			//TODO Add document saving
 		}
 	}
 }

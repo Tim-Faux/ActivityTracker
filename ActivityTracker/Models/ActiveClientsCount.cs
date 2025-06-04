@@ -36,6 +36,11 @@ namespace ActivityTracker.Models
 			}
 		}
 
+		public void ClearCountOfTimesActivePerClient()
+		{
+			CountOfTimesActivePerClient.Clear();
+		}
+
 		public Dictionary<string, int> GetClientDictionary()
 		{
 			return CountOfTimesActivePerClient;

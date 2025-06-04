@@ -20,5 +20,10 @@ namespace ActivityTracker.Models
 
 			WeakReferenceMessenger.Default.Send(new ActiveClientsListUpdated(new ActiveClientsList { ActiveClientsCount = allClientsCount }));
 		}
+
+		public static void ClearAllClientsCount()
+		{
+			allClientsCount.ClearCountOfTimesActivePerClient();
+		}
 	}
 }
