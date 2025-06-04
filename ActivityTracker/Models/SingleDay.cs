@@ -4,7 +4,7 @@ namespace ActivityTracker.Models
 {
     public class SingleDay
     {
-		const int numberOfStaff = 5;
+		public const int numberOfStaff = 5;
 		public ObservableCollection<Staff> AllStaffPerDay { get; set; } = new ObservableCollection<Staff>();
 		public SingleDay()
 		{

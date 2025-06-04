@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Reflection;
+using ActivityTracker.Helpers;
 using ActivityTracker.Messages;
 using ActivityTracker.Models;
 using CommunityToolkit.Mvvm.Messaging;
@@ -6,6 +8,8 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Documents;
 using Microsoft.UI.Xaml.Media;
+using Syncfusion.DocIO;
+using Syncfusion.DocIO.DLS;
 using Windows.Storage;
 
 namespace ActivityTracker.Views
@@ -76,7 +80,13 @@ namespace ActivityTracker.Views
 		public void SaveToDocument(object sender, RoutedEventArgs e)
 		{
 			string fileName = "note.docx";
-			//TODO Add document saving
+			Assembly assembly = typeof(App).GetTypeInfo().Assembly;
+			SingleDay[] daysInWeek = { Monday, Tuesday, Wednesday, Thursday, Friday };
+			WordDocument document = WordDocumentFormater.FormatWeekScheduleDoc(daysInWeek);
+
+			document.Save(storageFolder.Path + "\\" + fileName, FormatType.Docx);
+			document.Close();
+
 		}
 	}
 }
