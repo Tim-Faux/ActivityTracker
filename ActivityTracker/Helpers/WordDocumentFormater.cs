@@ -79,7 +79,10 @@ namespace ActivityTracker.Helpers
 					var currentCell = table.Rows[currentRow].Cells[currentColumn];
 					var paragraph = currentCell.AddParagraph();
 
-					IWTextRange textRange = paragraph.AppendText($"{singleDayInformation.StaffNames}\r");
+					IWTextRange textRange = paragraph.AppendText($"{singleDayInformation.Activity} ");
+					textRange.CharacterFormat.TextColor = Color.Red;
+
+					textRange = paragraph.AppendText($"{singleDayInformation.StaffNames}\r");
 					textRange.CharacterFormat.TextColor = Color.Blue;
 
 					textRange = paragraph.AppendText(singleDayInformation.ClientNames);
