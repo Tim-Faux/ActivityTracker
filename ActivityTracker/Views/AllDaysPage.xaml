@@ -48,9 +48,27 @@
             </ItemContainer>
         </DataTemplate>
     </Page.Resources>
-    <StackPanel Orientation="Horizontal">
-        <StackPanel Orientation="Horizontal">
-            <Grid>
+    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="300"/>
+                    <ColumnDefinition Width="300"/>
+                    <ColumnDefinition Width="300"/>
+                    <ColumnDefinition Width="300"/>
+                    <ColumnDefinition Width="300"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Margin="15" FontSize="20" FontWeight="Bold" Text="Monday"/>
+                <TextBlock Grid.Column="1" Margin="15" FontSize="20" FontWeight="Bold"  Text="Tuesday"/>
+                <TextBlock Grid.Column="2" Margin="15" FontSize="20" FontWeight="Bold"  Text="Wednesday"/>
+                <TextBlock Grid.Column="3" Margin="15" FontSize="20" FontWeight="Bold"  Text="Thursday"/>
+                <TextBlock Grid.Column="4" Margin="15" FontSize="20" FontWeight="Bold"  Text="Friday"/>
+            </Grid>
+            <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="200"/>
@@ -70,52 +88,52 @@
                         </Grid.ColumnDefinitions>
 
                         <ItemsView ItemsSource="{x:Bind Monday.AllStaffPerDay}" 
-                                Margin="15"
+                                Margin="15, 0, 15, 15"
                                 ItemTemplate="{StaticResource SingleDayItemTemplate}"
                                 Grid.Column="0">
-                                    <ItemsView.Layout>
-                                        <StackLayout Spacing="5"/>
-                                    </ItemsView.Layout>
+                            <ItemsView.Layout>
+                                <StackLayout Spacing="5"/>
+                            </ItemsView.Layout>
                         </ItemsView>
 
                         <ItemsView ItemsSource="{x:Bind Tuesday.AllStaffPerDay}" 
-                                Margin="15"
+                                Margin="15, 0, 15, 15"
                                 ItemTemplate="{StaticResource SingleDayItemTemplate}"
                                 Grid.Column="1">
-                                    <ItemsView.Layout>
-                                        <StackLayout Spacing="5"/>
-                                    </ItemsView.Layout>
+                            <ItemsView.Layout>
+                                <StackLayout Spacing="5"/>
+                            </ItemsView.Layout>
                         </ItemsView>
 
                         <ItemsView ItemsSource="{x:Bind Wednesday.AllStaffPerDay}" 
-                                Margin="15"
+                                Margin="15, 0, 15, 15"
                                 ItemTemplate="{StaticResource SingleDayItemTemplate}"
                                 Grid.Column="2">
-                                    <ItemsView.Layout>
-                                        <StackLayout Spacing="5"/>
-                                    </ItemsView.Layout>
+                            <ItemsView.Layout>
+                                <StackLayout Spacing="5"/>
+                            </ItemsView.Layout>
                         </ItemsView>
 
                         <ItemsView ItemsSource="{x:Bind Thursday.AllStaffPerDay}" 
-                                Margin="15"
+                                Margin="15, 0, 15, 15"
                                 ItemTemplate="{StaticResource SingleDayItemTemplate}"
                                 Grid.Column="3">
-                                    <ItemsView.Layout>
-                                        <StackLayout Spacing="5"/>
-                                    </ItemsView.Layout>
+                            <ItemsView.Layout>
+                                <StackLayout Spacing="5"/>
+                            </ItemsView.Layout>
                         </ItemsView>
 
                         <ItemsView ItemsSource="{x:Bind Friday.AllStaffPerDay}" 
-                                Margin="15"
+                                Margin="15, 0, 15, 15"
                                 ItemTemplate="{StaticResource SingleDayItemTemplate}"
                                 Grid.Column="4">
-                                    <ItemsView.Layout>
-                                        <StackLayout Spacing="5"/>
-                                    </ItemsView.Layout>
+                            <ItemsView.Layout>
+                                <StackLayout Spacing="5"/>
+                            </ItemsView.Layout>
                         </ItemsView>
                     </Grid>
                 </ScrollViewer>
-                <Grid Grid.Column="1"  Margin="15, 15, 15, 50">
+                <Grid Grid.Column="1"  Margin="15, 0, 15, 50">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
@@ -135,6 +153,6 @@
                     </StackPanel>
                 </Grid>
             </Grid>
-        </StackPanel>
-    </StackPanel>
+        </Grid>
+    </ScrollViewer>
 </Page>
