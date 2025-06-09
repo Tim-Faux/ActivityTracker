@@ -6,6 +6,8 @@ namespace ActivityTracker.Models
 	{
 		public string StaffNames { get; set; } = "";
 
+		public string Activity { get; set; } = "";
+
 		private string _clientNames = "";
 		public string ClientNames { 
 			get { 
