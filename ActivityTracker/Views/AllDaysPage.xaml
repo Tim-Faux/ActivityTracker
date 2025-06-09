@@ -13,17 +13,29 @@
     <Page.Resources>
         <DataTemplate x:Key="SingleDayItemTemplate" x:DataType="models:Staff">
             <ItemContainer IsTabStop="False">
-                <Grid IsTabStop="False">
+                <Grid IsTabStop="False"  Background="LightGray">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="30"/>
                         <RowDefinition Height="150"/>
                     </Grid.RowDefinitions>
-                    <TextBox x:Name="StaffEditor"
-                        Text="{x:Bind StaffNames, Mode=TwoWay}"
-                        AcceptsReturn="False"
-                        Background="White"
-                        PlaceholderText="Enter your staff"
-                        Grid.Row="0"/>
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="135"/>
+                            <ColumnDefinition Width="134"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox x:Name="ActivityEditor"
+                            Text="{x:Bind Activity, Mode=TwoWay}"
+                            AcceptsReturn="False"
+                            Background="White"
+                            PlaceholderText="Enter staff activity"
+                            Grid.Column="0"/>
+                        <TextBox x:Name="StaffEditor"
+                            Text="{x:Bind StaffNames, Mode=TwoWay}"
+                            AcceptsReturn="False"
+                            Background="White"
+                            PlaceholderText="Enter your staff"
+                            Grid.Column="1"/>
+                    </Grid>
                     <TextBox x:Name="ClientEditor"
                         Text="{x:Bind ClientNames, Mode=TwoWay}"
                         AcceptsReturn="True"
@@ -50,11 +62,11 @@
                 <ScrollViewer Grid.Column="0">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="230"/>
-                            <ColumnDefinition Width="230"/>
-                            <ColumnDefinition Width="230"/>
-                            <ColumnDefinition Width="230"/>
-                            <ColumnDefinition Width="230"/>
+                            <ColumnDefinition Width="300"/>
+                            <ColumnDefinition Width="300"/>
+                            <ColumnDefinition Width="300"/>
+                            <ColumnDefinition Width="300"/>
+                            <ColumnDefinition Width="300"/>
                         </Grid.ColumnDefinitions>
 
                         <ItemsView ItemsSource="{x:Bind Monday.AllStaffPerDay}" 
