@@ -5,6 +5,7 @@ using ActivityTracker.Helpers;
 using ActivityTracker.Messages;
 using ActivityTracker.Models;
 using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Documents;
@@ -40,10 +41,38 @@ namespace ActivityTracker.Views
 			List<string> staffNames = new List<string>();
 			Task.Run(async () => staffNames = await StaffNameImporter.ImportStaff()).Wait();
 
-			string formatedStaffNames = "";
-			foreach (var staffName in staffNames)
-				formatedStaffNames += $"{staffName}\r";
-			ImportedStaffText.Text = formatedStaffNames;
+			int row = 0;
+			foreach (var staffName in staffNames) {
+				var rowDef = new RowDefinition();
+				rowDef.Height = GridLength.Auto;
+				StaffListGrid.RowDefinitions.Add(rowDef);
+
+				var staffTextBox = DragableTextbox(staffName);
+				Grid.SetRow(staffTextBox, row);
+				StaffListGrid.Children.Add(staffTextBox);
+
+				row++;
+			}
+		}
+
+		private Grid DragableTextbox(string text)
+		{
+			TextBlock textBlock = new TextBlock();
+			textBlock.Text = text;
+			textBlock.IsTabStop = false;
+			textBlock.Margin = new Thickness(5);
+			textBlock.TextWrapping = TextWrapping.Wrap;
+
+			Grid grid = new Grid();
+			grid.Children.Add(textBlock);
+			var brush = new SolidColorBrush(Colors.LightGray);
+			grid.BorderBrush = brush;
+			grid.BorderThickness = new Thickness(1);
+			var backgroundBrush = new SolidColorBrush(Colors.White);
+			grid.Background = backgroundBrush;
+			grid.CanDrag = true;
+
+			return grid;
 		}
 
 		private void ImportClients()

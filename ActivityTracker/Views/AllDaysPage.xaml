@@ -159,15 +159,7 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <TextBlock Text="Staff"/>
-                    <Grid Background="White" BorderBrush="LightGray" BorderThickness="2" Margin="0, 0, 0, 15">
-                        <TextBlock x:Name="ImportedStaffText"
-                                IsTabStop="False"
-                                Margin="15"
-                                FocusVisualPrimaryBrush="White"
-                                TextWrapping="Wrap"
-                                Grid.Row="0">
-                        </TextBlock>
-                    </Grid>
+                    <Grid x:Name="StaffListGrid" Background="White" BorderBrush="LightGray" BorderThickness="2" Margin="0, 0, 0, 15"/>
                 </Grid>
             </Grid>
         </Grid>
