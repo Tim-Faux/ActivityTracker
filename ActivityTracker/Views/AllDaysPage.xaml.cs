@@ -80,11 +80,44 @@ namespace ActivityTracker.Views
 			List<string> clientNames = new List<string>();
 			Task.Run(async () => clientNames = await ClientNameImporter.ImportClients()).Wait();
 
-			//TODO This is a temporary way to display clients from the file until drag and drop is implemented
-			Dictionary<string, int> formatedClientNames = new Dictionary<string, int>();
-			foreach (var clientName in clientNames)
-				formatedClientNames.Add(clientName, 1);
-			UpdateClientsInActivityList(formatedClientNames);
+			int row = 0;
+			foreach (var clientName in clientNames) {
+				var rowDef = new RowDefinition();
+				rowDef.Height = GridLength.Auto;
+				ClientListGrid.RowDefinitions.Add(rowDef);
+
+				var clientRichTextBox = DragableRichTextbox(clientName);
+				Grid.SetRow(clientRichTextBox, row);
+				ClientListGrid.Children.Add(clientRichTextBox);
+
+				row++;
+			}
+		}
+
+		private Grid DragableRichTextbox(string text)
+		{
+			RichTextBlock textBlock = new RichTextBlock();
+			Run run = new Run();
+			run.Text = text;
+			var paragraph = new Paragraph();
+			paragraph.Inlines.Add(run);
+
+			textBlock.Blocks.Add(paragraph);
+			textBlock.IsTabStop = false;
+			textBlock.Margin = new Thickness(5);
+			textBlock.TextWrapping = TextWrapping.Wrap;
+			textBlock.IsTextSelectionEnabled = false;
+
+			Grid grid = new Grid();
+			grid.Children.Add(textBlock);
+			var brush = new SolidColorBrush(Colors.LightGray);
+			grid.BorderBrush = brush;
+			grid.BorderThickness = new Thickness(1);
+			var backgroundBrush = new SolidColorBrush(Colors.White);
+			grid.Background = backgroundBrush;
+			grid.CanDrag = true;
+
+			return grid;
 		}
 
 		public void UpdateClientsInActivityList(Dictionary<string,int> clientsInActivity)
@@ -107,8 +140,9 @@ namespace ActivityTracker.Views
 				paragraph.Inlines.Add(run);
 			}
 
-			ClientsInActivities.Blocks.Clear();
-			ClientsInActivities.Blocks.Add(paragraph);
+			//TODO need to update this for the new dragable textboxes
+			//ClientsInActivities.Blocks.Clear();
+			//ClientsInActivities.Blocks.Add(paragraph);
 		}
 
 		public void ClearData(object sender, RoutedEventArgs e)
@@ -128,7 +162,7 @@ namespace ActivityTracker.Views
 			Friday.AllStaffPerDay.Clear();
 			Friday.CreateAllStaffPerDayList();
 
-			ClientsInActivities.Blocks.Clear();
+			//ClientsInActivities.Blocks.Clear();
 			AllClients.ClearAllClientsCount();
 		}
 

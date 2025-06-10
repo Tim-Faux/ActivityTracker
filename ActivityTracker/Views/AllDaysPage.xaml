@@ -140,15 +140,7 @@
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <Grid Background="White" BorderBrush="LightGray" BorderThickness="2" Margin="0, 0, 0, 15">
-                        <RichTextBlock x:Name="ClientsInActivities"
-                               IsTabStop="False"
-                               Margin="15"
-                               FocusVisualPrimaryBrush="White"
-                               TextWrapping="Wrap"
-                               Grid.Row="0">
-                        </RichTextBlock>
-                    </Grid>
+                    <Grid x:Name="ClientListGrid" Background="White" BorderBrush="LightGray" BorderThickness="2" Margin="0, 0, 0, 15"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="1" Spacing="10">
                         <Button Content="Save" Width="75" Click="SaveToDocument"/>
                         <Button Content="Clear" Width="75" Click="ClearData"/>
