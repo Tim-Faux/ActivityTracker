@@ -72,9 +72,11 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="200"/>
+                    <ColumnDefinition Width="200"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <ScrollViewer Grid.Column="0">
@@ -151,6 +153,21 @@
                         <Button Content="Save" Width="75" Click="SaveToDocument"/>
                         <Button Content="Clear" Width="75" Click="ClearData"/>
                     </StackPanel>
+                </Grid>
+                <Grid Grid.Column="2"  Margin="15, 0, 15, 50">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Staff"/>
+                    <Grid Background="White" BorderBrush="LightGray" BorderThickness="2" Margin="0, 0, 0, 15">
+                        <TextBlock x:Name="ImportedStaffText"
+                                IsTabStop="False"
+                                Margin="15"
+                                FocusVisualPrimaryBrush="White"
+                                TextWrapping="Wrap"
+                                Grid.Row="0">
+                        </TextBlock>
+                    </Grid>
                 </Grid>
             </Grid>
         </Grid>

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading.Tasks;
 using ActivityTracker.Helpers;
 using ActivityTracker.Messages;
 using ActivityTracker.Models;
@@ -30,6 +31,18 @@ namespace ActivityTracker.Views
 				UpdateClientsInActivityList(m.Value.ActiveClientsCount.GetClientDictionary());
 			});
 			this.InitializeComponent();
+			ImportStaff();
+		}
+
+		private void ImportStaff()
+		{
+			List<string> staffNames = new List<string>();
+			Task.Run(async () => staffNames = await StaffNameImporter.ImportStaff()).Wait();
+
+			string formatedStaffNames = "";
+			foreach (var staffName in staffNames)
+				formatedStaffNames += $"{staffName}\r";
+			ImportedStaffText.Text = formatedStaffNames;
 		}
 
 		public void UpdateClientsInActivityList(Dictionary<string,int> clientsInActivity)
