@@ -44,6 +44,7 @@
     <PackageReference Include="Microsoft.VisualStudio.Services.Client" Version="19.225.1" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.3916" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250401001" />
+    <PackageReference Include="Syncfusion.DocIO.Net.Core" Version="29.2.8" />
   </ItemGroup>
   <ItemGroup>
     <Page Update="Views\AllDaysPage.xaml">

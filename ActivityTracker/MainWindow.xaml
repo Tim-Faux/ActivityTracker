@@ -17,6 +17,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         
@@ -26,8 +27,11 @@
                 <FontIconSource Glyph="&#xF4AA;"/>
             </TitleBar.IconSource>
         </TitleBar>
-        
-        <Frame x:Name="rootFrame" Grid.Row="1" SourcePageType="views:AllDaysPage"/>
+
+        <Grid Name="SyncfusionLicenseError" Background="OrangeRed" Grid.Row="1" Visibility="Collapsed">
+            <TextBlock Margin="10" FontSize="30" HorizontalAlignment="Center" Text="Error: Your Syncfusion license is missing or out of date! Please check your license and relaunch this program"/>
+        </Grid>
+        <Frame x:Name="rootFrame" Grid.Row="2" SourcePageType="views:AllDaysPage"/>
     </Grid>
 
 </Window>
