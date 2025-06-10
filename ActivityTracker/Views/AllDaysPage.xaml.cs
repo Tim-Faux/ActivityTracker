@@ -32,6 +32,7 @@ namespace ActivityTracker.Views
 			});
 			this.InitializeComponent();
 			ImportStaff();
+			ImportClients();
 		}
 
 		private void ImportStaff()
@@ -43,6 +44,18 @@ namespace ActivityTracker.Views
 			foreach (var staffName in staffNames)
 				formatedStaffNames += $"{staffName}\r";
 			ImportedStaffText.Text = formatedStaffNames;
+		}
+
+		private void ImportClients()
+		{
+			List<string> clientNames = new List<string>();
+			Task.Run(async () => clientNames = await ClientNameImporter.ImportClients()).Wait();
+
+			//TODO This is a temporary way to display clients from the file until drag and drop is implemented
+			Dictionary<string, int> formatedClientNames = new Dictionary<string, int>();
+			foreach (var clientName in clientNames)
+				formatedClientNames.Add(clientName, 1);
+			UpdateClientsInActivityList(formatedClientNames);
 		}
 
 		public void UpdateClientsInActivityList(Dictionary<string,int> clientsInActivity)
