@@ -12,6 +12,7 @@ using Microsoft.UI.Xaml.Documents;
 using Microsoft.UI.Xaml.Media;
 using Syncfusion.DocIO;
 using Syncfusion.DocIO.DLS;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 
 namespace ActivityTracker.Views
@@ -47,34 +48,13 @@ namespace ActivityTracker.Views
 				rowDef.Height = GridLength.Auto;
 				StaffListGrid.RowDefinitions.Add(rowDef);
 
-				var staffTextBox = DragableTextbox(staffName);
+				var staffTextBox = CreateDragableTextbox(staffName, TextBoxType.Staff);
 				Grid.SetRow(staffTextBox, row);
 				StaffListGrid.Children.Add(staffTextBox);
 
 				row++;
 			}
 		}
-
-		private Grid DragableTextbox(string text)
-		{
-			TextBlock textBlock = new TextBlock();
-			textBlock.Text = text;
-			textBlock.IsTabStop = false;
-			textBlock.Margin = new Thickness(5);
-			textBlock.TextWrapping = TextWrapping.Wrap;
-
-			Grid grid = new Grid();
-			grid.Children.Add(textBlock);
-			var brush = new SolidColorBrush(Colors.LightGray);
-			grid.BorderBrush = brush;
-			grid.BorderThickness = new Thickness(1);
-			var backgroundBrush = new SolidColorBrush(Colors.White);
-			grid.Background = backgroundBrush;
-			grid.CanDrag = true;
-
-			return grid;
-		}
-
 		private void ImportClients()
 		{
 			List<string> clientNames = new List<string>();
@@ -86,23 +66,18 @@ namespace ActivityTracker.Views
 				rowDef.Height = GridLength.Auto;
 				ClientListGrid.RowDefinitions.Add(rowDef);
 
-				var clientRichTextBox = DragableRichTextbox(clientName);
-				Grid.SetRow(clientRichTextBox, row);
-				ClientListGrid.Children.Add(clientRichTextBox);
+				var clientTextBox = CreateDragableTextbox(clientName, TextBoxType.Client);
+				Grid.SetRow(clientTextBox, row);
+				ClientListGrid.Children.Add(clientTextBox);
 
 				row++;
 			}
 		}
 
-		private Grid DragableRichTextbox(string text)
+		public Grid CreateDragableTextbox(string text, TextBoxType textBoxType)
 		{
-			RichTextBlock textBlock = new RichTextBlock();
-			Run run = new Run();
-			run.Text = text;
-			var paragraph = new Paragraph();
-			paragraph.Inlines.Add(run);
-
-			textBlock.Blocks.Add(paragraph);
+			TextBlock textBlock = new TextBlock();
+			textBlock.Text = text;
 			textBlock.IsTabStop = false;
 			textBlock.Margin = new Thickness(5);
 			textBlock.TextWrapping = TextWrapping.Wrap;
@@ -116,6 +91,10 @@ namespace ActivityTracker.Views
 			var backgroundBrush = new SolidColorBrush(Colors.White);
 			grid.Background = backgroundBrush;
 			grid.CanDrag = true;
+			if (textBoxType == TextBoxType.Client) {
+				grid.DragStarting += Clients_DragStart;
+				grid.DropCompleted += Clients_DropCompleted;
+			}
 
 			return grid;
 		}
@@ -176,6 +155,41 @@ namespace ActivityTracker.Views
 			document.Save(storageFolder.Path + "\\" + fileName, FormatType.Docx);
 			document.Close();
 
+		}
+
+		private static string draggedClient = "";
+		public void Clients_DragStart(object sender, DragStartingEventArgs e)
+		{
+			var grid = sender as Grid;
+			if (grid != null && grid.Children.Count > 0) {
+				var textBlock = grid.Children[0] as TextBlock;
+				if (textBlock != null) {
+					draggedClient = textBlock.Text;
+				}
+			}
+		}
+
+		public void Clients_DropCompleted(object sender, DropCompletedEventArgs e)
+		{
+			draggedClient = "";
+		}
+
+		public void SingleDay_Drop(object sender, DragEventArgs e)
+		{
+			if (!string.IsNullOrWhiteSpace(draggedClient)) {
+				var grid = sender as Grid;
+				if (grid != null && grid.Children.Count > 1) {
+					var textbox = grid.Children[1] as TextBox;
+					if(textbox != null)
+						textbox.Text += draggedClient + "\r";
+				}
+			}
+			draggedClient = "";
+		}
+
+		private void SingleDay_DragOver(object sender, DragEventArgs e)
+		{
+			e.AcceptedOperation = DataPackageOperation.Copy;
 		}
 	}
 }

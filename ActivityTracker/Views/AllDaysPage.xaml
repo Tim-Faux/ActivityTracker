@@ -13,7 +13,7 @@
     <Page.Resources>
         <DataTemplate x:Key="SingleDayItemTemplate" x:DataType="models:Staff">
             <ItemContainer IsTabStop="False">
-                <Grid IsTabStop="False"  Background="LightGray">
+                <Grid IsTabStop="False"  Background="LightGray" AllowDrop="True" DragOver="SingleDay_DragOver" Drop="SingleDay_Drop">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="30"/>
                         <RowDefinition Height="150"/>
