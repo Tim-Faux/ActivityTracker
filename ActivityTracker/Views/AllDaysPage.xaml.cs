@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -188,8 +189,10 @@ namespace ActivityTracker.Views
 				var grid = sender as Grid;
 				if (grid != null && grid.Children.Count > 1) {
 					var textbox = grid.Children[1] as TextBox;
-					if (textbox != null)
-						textbox.Text += draggedClient + "\r";
+					if (textbox != null) {
+						textbox.Text += textbox.Text.EndsWith("\r") ? string.Empty : Environment.NewLine;
+						textbox.Text += draggedClient + Environment.NewLine;
+					}
 				}
 			}
 			draggedClient = "";

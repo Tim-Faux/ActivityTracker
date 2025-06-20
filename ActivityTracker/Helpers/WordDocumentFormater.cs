@@ -1,4 +1,5 @@
-﻿using ActivityTracker.Models;
+﻿using System;
+using ActivityTracker.Models;
 using Syncfusion.DocIO.DLS;
 using Syncfusion.Drawing;
 
@@ -91,7 +92,7 @@ namespace ActivityTracker.Helpers
 					textRange.CharacterFormat.TextColor = Color.Red;
 					textRange.CharacterFormat.FontName = "Aptos";
 
-					textRange = paragraph.AppendText($"{singleDayInformation.StaffNames}\r");
+					textRange = paragraph.AppendText($"{singleDayInformation.StaffNames}{Environment.NewLine}");
 					textRange.CharacterFormat.TextColor = Color.Blue;
 					textRange.CharacterFormat.FontName = "Aptos";
 
@@ -113,12 +114,12 @@ namespace ActivityTracker.Helpers
 		{
 			var paragraph = section.AddParagraph();
 			paragraph.ParagraphFormat.AfterSpacing = 8f;
-			IWTextRange daysOfTheWeek = paragraph.AppendText("Week schedule\r" +
-				"Monday: \r" +
-				"Tuesday: \r" +
-				"Wednesday: \r" +
-				"Thursday: \r" +
-				"Friday: \r");
+			IWTextRange daysOfTheWeek = paragraph.AppendText("Week schedule" + Environment.NewLine +
+				"Monday: " + Environment.NewLine +
+				"Tuesday: " + Environment.NewLine +
+				"Wednesday: " + Environment.NewLine +
+				"Thursday: " + Environment.NewLine +
+				"Friday: " + Environment.NewLine);
 			daysOfTheWeek.CharacterFormat.FontName = "Aptos";
 		}
 	}
