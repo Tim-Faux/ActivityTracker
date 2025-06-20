@@ -30,7 +30,7 @@
                             PlaceholderText="Enter staff activity"
                             Grid.Column="0"/>
                         <TextBox x:Name="StaffEditor"
-                            Text="{x:Bind StaffNames, Mode=TwoWay}"
+                            Text="{x:Bind StaffNames, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                             AcceptsReturn="False"
                             Background="White"
                             PlaceholderText="Enter your staff"

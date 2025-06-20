@@ -96,6 +96,10 @@ namespace ActivityTracker.Views
 				grid.DragStarting += Clients_DragStart;
 				grid.DropCompleted += Clients_DropCompleted;
 			}
+			else if (textBoxType == TextBoxType.Staff) {
+				grid.DragStarting += Staff_DragStart;
+				grid.DropCompleted += Staff_DropCompleted;
+			}
 
 			return grid;
 		}
@@ -186,6 +190,24 @@ namespace ActivityTracker.Views
 			draggedClient = "";
 		}
 
+		private static string draggedStaff = "";
+		public void Staff_DragStart(object sender, DragStartingEventArgs e)
+		{
+			var grid = sender as Grid;
+			if (grid != null && grid.Children.Count > 0) {
+				var textBlock = grid.Children[0] as TextBlock;
+				if (textBlock != null) {
+					var staffName = textBlock.Text.Trim();
+					draggedStaff = textBlock.Text.Trim();
+				}
+			}
+		}
+
+		public void Staff_DropCompleted(object sender, DropCompletedEventArgs e)
+		{
+			draggedStaff = "";
+		}
+
 		public void SingleDay_Drop(object sender, DragEventArgs e)
 		{
 			if (!string.IsNullOrWhiteSpace(draggedClient)) {
@@ -199,6 +221,20 @@ namespace ActivityTracker.Views
 				}
 			}
 			draggedClient = "";
+
+			if (!string.IsNullOrWhiteSpace(draggedStaff)) {
+				var grid = sender as Grid;
+				if (grid != null && grid.Children.Count > 0) {
+					var staffGrid = grid.Children[0] as Grid;
+					if (staffGrid != null && staffGrid.Children.Count > 1) {
+						var textbox = staffGrid.Children[1] as TextBox;
+						if (textbox != null) {
+							textbox.Text = draggedStaff;
+						}
+					}
+				}
+			}
+			draggedStaff = "";
 		}
 
 		private void SingleDay_DragOver(object sender, DragEventArgs e)
