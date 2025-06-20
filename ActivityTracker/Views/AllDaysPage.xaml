@@ -37,7 +37,7 @@
                             Grid.Column="1"/>
                     </Grid>
                     <TextBox x:Name="ClientEditor"
-                        Text="{x:Bind ClientNames, Mode=TwoWay}"
+                        Text="{x:Bind ClientNames, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         AcceptsReturn="True"
                         TextWrapping="Wrap"
                         Background="LightGray"

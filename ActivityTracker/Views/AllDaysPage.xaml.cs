@@ -148,8 +148,11 @@ namespace ActivityTracker.Views
 			Friday.AllStaffPerDay.Clear();
 			Friday.CreateAllStaffPerDayList();
 
-			//ClientsInActivities.Blocks.Clear();
 			AllClients.ClearAllClientsCount();
+			var clientTextBlockGrid = ClientListGrid.Children[0] as Grid;
+			if (clientTextBlockGrid != null ) 
+				clientTextBlockGrid.Children.Clear();
+			ImportClients();
 		}
 
 		public void SaveToDocument(object sender, RoutedEventArgs e)
@@ -190,7 +193,7 @@ namespace ActivityTracker.Views
 				if (grid != null && grid.Children.Count > 1) {
 					var textbox = grid.Children[1] as TextBox;
 					if (textbox != null) {
-						textbox.Text += textbox.Text.EndsWith("\r") ? string.Empty : Environment.NewLine;
+						textbox.Text += string.IsNullOrWhiteSpace(textbox.Text) || textbox.Text.EndsWith("\r") ? string.Empty : Environment.NewLine;
 						textbox.Text += draggedClient + Environment.NewLine;
 					}
 				}
