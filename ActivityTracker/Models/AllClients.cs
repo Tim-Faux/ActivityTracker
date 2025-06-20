@@ -15,7 +15,7 @@ namespace ActivityTracker.Models
 			var clientsToAdd = newClientInActivityNames.Except(oldClientsInActivityNames);
 
 			foreach (var clientName in clientsToAdd) {
-				allClientsCount.AddClient(clientName);
+				allClientsCount.AddClient(clientName.Trim());
 			}
 
 			WeakReferenceMessenger.Default.Send(new ActiveClientsListUpdated(new ActiveClientsList { ActiveClientsCount = allClientsCount }));

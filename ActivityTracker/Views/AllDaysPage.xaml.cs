@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using ActivityTracker.Helpers;
@@ -8,7 +9,6 @@ using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Documents;
 using Microsoft.UI.Xaml.Media;
 using Syncfusion.DocIO;
 using Syncfusion.DocIO.DLS;
@@ -47,8 +47,8 @@ namespace ActivityTracker.Views
 				var rowDef = new RowDefinition();
 				rowDef.Height = GridLength.Auto;
 				StaffListGrid.RowDefinitions.Add(rowDef);
-
-				var staffTextBox = CreateDragableTextbox(staffName, TextBoxType.Staff);
+				
+				var staffTextBox = CreateDragableTextbox(staffName.Trim(), TextBoxType.Staff);
 				Grid.SetRow(staffTextBox, row);
 				StaffListGrid.Children.Add(staffTextBox);
 
@@ -66,7 +66,7 @@ namespace ActivityTracker.Views
 				rowDef.Height = GridLength.Auto;
 				ClientListGrid.RowDefinitions.Add(rowDef);
 
-				var clientTextBox = CreateDragableTextbox(clientName, TextBoxType.Client);
+				var clientTextBox = CreateDragableTextbox(clientName.Trim(), TextBoxType.Client);
 				Grid.SetRow(clientTextBox, row);
 				ClientListGrid.Children.Add(clientTextBox);
 
@@ -101,27 +101,33 @@ namespace ActivityTracker.Views
 
 		public void UpdateClientsInActivityList(Dictionary<string,int> clientsInActivity)
 		{
-			var clients = clientsInActivity.Keys;
-			Paragraph paragraph = new Paragraph();
-			foreach (var client in clients) {
-				Run run = new Run();
-				if (clientsInActivity[client] > 3) {
-					run.Text += $"{client} X{clientsInActivity[client]}\r";
-					run.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 237, 67, 55));
-				}
-				else if (clientsInActivity[client] > 1) {
-					run.Text += $"{client} X{clientsInActivity[client]}\r";
-					run.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 255,193,7));
-				}
-				else {
-					run.Text += client + "\r";
-				}
-				paragraph.Inlines.Add(run);
-			}
+			foreach (var child in ClientListGrid.Children) {
+				var clientTextBlockGrid = child as Grid;
+				if (clientTextBlockGrid != null && clientTextBlockGrid.Children.Count > 0) {
+					var clientTextBlock = clientTextBlockGrid.Children[0] as TextBlock;
+					if (clientTextBlock != null) {
+						var clientText = clientTextBlock.Text;
+						var clientName = clientText.Any(char.IsDigit) && clientText.Contains("X") ?
+							clientText.Substring(0, clientText.LastIndexOf("X")).Trim() :
+							clientText.Trim();
 
-			//TODO need to update this for the new dragable textboxes
-			//ClientsInActivities.Blocks.Clear();
-			//ClientsInActivities.Blocks.Add(paragraph);
+						if (clientsInActivity.ContainsKey(clientName)) {
+							if (clientsInActivity[clientName] > 3) {
+								clientTextBlock.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 237, 67, 55));
+							}
+							else if (clientsInActivity[clientName] > 1) {
+								clientTextBlock.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 193, 7));
+							}
+							else {
+								clientTextBlock.Foreground = new SolidColorBrush(Colors.Black);
+							}
+							clientTextBlock.Text = clientsInActivity[clientName] > 1 ?
+								$"{clientName} X{clientsInActivity[clientName]}" :
+								clientName;
+						}
+					}
+				}
+			}
 		}
 
 		public void ClearData(object sender, RoutedEventArgs e)
@@ -164,7 +170,9 @@ namespace ActivityTracker.Views
 			if (grid != null && grid.Children.Count > 0) {
 				var textBlock = grid.Children[0] as TextBlock;
 				if (textBlock != null) {
-					draggedClient = textBlock.Text;
+					var clientName = textBlock.Text;
+					clientName = clientName.Any(char.IsDigit) && clientName.Contains("X") ? clientName.Substring(0, clientName.LastIndexOf("X")).Trim() : clientName.Trim();
+					draggedClient = clientName;
 				}
 			}
 		}
@@ -180,7 +188,7 @@ namespace ActivityTracker.Views
 				var grid = sender as Grid;
 				if (grid != null && grid.Children.Count > 1) {
 					var textbox = grid.Children[1] as TextBox;
-					if(textbox != null)
+					if (textbox != null)
 						textbox.Text += draggedClient + "\r";
 				}
 			}
