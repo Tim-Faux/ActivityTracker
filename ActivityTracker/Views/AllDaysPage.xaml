@@ -13,7 +13,7 @@
     <Page.Resources>
         <DataTemplate x:Key="SingleDayItemTemplate" x:DataType="models:Staff">
             <ItemContainer IsTabStop="False">
-                <Grid IsTabStop="False"  Background="LightGray">
+                <Grid IsTabStop="False"  Background="LightGray" AllowDrop="True" DragOver="SingleDay_DragOver" Drop="SingleDay_Drop">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="30"/>
                         <RowDefinition Height="150"/>
@@ -30,14 +30,14 @@
                             PlaceholderText="Enter staff activity"
                             Grid.Column="0"/>
                         <TextBox x:Name="StaffEditor"
-                            Text="{x:Bind StaffNames, Mode=TwoWay}"
+                            Text="{x:Bind StaffNames, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                             AcceptsReturn="False"
                             Background="White"
                             PlaceholderText="Enter your staff"
                             Grid.Column="1"/>
                     </Grid>
                     <TextBox x:Name="ClientEditor"
-                        Text="{x:Bind ClientNames, Mode=TwoWay}"
+                        Text="{x:Bind ClientNames, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         AcceptsReturn="True"
                         TextWrapping="Wrap"
                         Background="LightGray"
@@ -72,9 +72,11 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="200"/>
+                    <ColumnDefinition Width="200"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <ScrollViewer Grid.Column="0">
@@ -138,19 +140,18 @@
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <Grid Background="White" BorderBrush="LightGray" BorderThickness="2" Margin="0, 0, 0, 15">
-                        <RichTextBlock x:Name="ClientsInActivities"
-                               IsTabStop="False"
-                               Margin="15"
-                               FocusVisualPrimaryBrush="White"
-                               TextWrapping="Wrap"
-                               Grid.Row="0">
-                        </RichTextBlock>
-                    </Grid>
+                    <Grid x:Name="ClientListGrid" Background="White" BorderBrush="LightGray" BorderThickness="2" Margin="0, 0, 0, 15"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="1" Spacing="10">
                         <Button Content="Save" Width="75" Click="SaveToDocument"/>
                         <Button Content="Clear" Width="75" Click="ClearData"/>
                     </StackPanel>
+                </Grid>
+                <Grid Grid.Column="2"  Margin="15, 0, 15, 50">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Staff"/>
+                    <Grid x:Name="StaffListGrid" Background="White" BorderBrush="LightGray" BorderThickness="2" Margin="0, 0, 0, 15"/>
                 </Grid>
             </Grid>
         </Grid>
