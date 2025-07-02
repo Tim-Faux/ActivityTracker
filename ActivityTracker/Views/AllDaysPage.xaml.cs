@@ -26,6 +26,7 @@ namespace ActivityTracker.Views
 		private SingleDay Thursday = new();
 		private SingleDay Friday = new();
 		private StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
+		private DispatcherTimer timer;
 
 		public AllDaysPage()
         {
@@ -36,6 +37,7 @@ namespace ActivityTracker.Views
 			this.InitializeComponent();
 			ImportStaff();
 			ImportClients();
+			timer = new DispatcherTimer();
 		}
 
 		private void ImportStaff()
@@ -171,6 +173,11 @@ namespace ActivityTracker.Views
 
 		}
 
+		private void SingleDay_DragOver(object sender, DragEventArgs e)
+		{
+			e.AcceptedOperation = DataPackageOperation.Copy;
+		}
+
 		private static string draggedClient = "";
 		public void Clients_DragStart(object sender, DragStartingEventArgs e)
 		{
@@ -188,6 +195,7 @@ namespace ActivityTracker.Views
 		public void Clients_DropCompleted(object sender, DropCompletedEventArgs e)
 		{
 			draggedClient = "";
+			clientDayOfTheWeekDraggedOver = null;
 		}
 
 		private static string draggedStaff = "";
@@ -208,6 +216,15 @@ namespace ActivityTracker.Views
 			draggedStaff = "";
 		}
 
+		private static string? clientDayOfTheWeekDraggedOver = null;
+		public void ItemViews_Drag(object sender, DragEventArgs e)
+		{
+			var itemView = sender as ItemsView;
+			if (itemView != null) {
+				clientDayOfTheWeekDraggedOver = itemView.Name;
+			}
+		}
+
 		public void SingleDay_Drop(object sender, DragEventArgs e)
 		{
 			if (!string.IsNullOrWhiteSpace(draggedClient)) {
@@ -215,12 +232,12 @@ namespace ActivityTracker.Views
 				if (grid != null && grid.Children.Count > 1) {
 					var textbox = grid.Children[1] as TextBox;
 					if (textbox != null) {
-						textbox.Text += string.IsNullOrWhiteSpace(textbox.Text) || textbox.Text.EndsWith("\r") ? string.Empty : Environment.NewLine;
-						textbox.Text += draggedClient + Environment.NewLine;
+						verifyClientCanBeDropped(textbox);
 					}
 				}
 			}
 			draggedClient = "";
+			clientDayOfTheWeekDraggedOver = null;
 
 			if (!string.IsNullOrWhiteSpace(draggedStaff)) {
 				var grid = sender as Grid;
@@ -237,9 +254,58 @@ namespace ActivityTracker.Views
 			draggedStaff = "";
 		}
 
-		private void SingleDay_DragOver(object sender, DragEventArgs e)
+		private void verifyClientCanBeDropped(TextBox textbox)
 		{
-			e.AcceptedOperation = DataPackageOperation.Copy;
+			ClientVerifier clientVerifier = new ClientVerifier();
+			var allClientsActiveInDay = GetClientsInDroppedClientColumn();
+			var clientCanBePlaced = clientVerifier.VerifyClient(draggedClient, allClientsActiveInDay);
+			if (clientCanBePlaced.Count == 0) {
+				textbox.Text += string.IsNullOrWhiteSpace(textbox.Text) || textbox.Text.EndsWith("\r") ? string.Empty : Environment.NewLine;
+				textbox.Text += draggedClient + Environment.NewLine;
+			}
+			else {
+				DisplayError(clientCanBePlaced);
+			}
+		}
+
+		private List<string> GetClientsInDroppedClientColumn()
+		{
+			var clients = new List<string>();
+			switch (clientDayOfTheWeekDraggedOver) {
+				case "monday":
+					clients = Monday.GetAllClientsInDay();
+					break;
+				case "tuesday":
+					clients = Tuesday.GetAllClientsInDay();
+					break;
+				case "wednesday":
+					clients = Wednesday.GetAllClientsInDay();
+					break;
+				case "thursday":
+					clients = Thursday.GetAllClientsInDay();
+					break;
+				case "friday":
+					clients = Friday.GetAllClientsInDay();
+					break;
+			}
+			return clients;
+		}
+
+		private void DisplayError(List<string> ErrorMessages)
+		{
+			ValidationError.Visibility = Visibility.Visible;
+			ValidationError.Message = string.Join(Environment.NewLine, ErrorMessages);
+
+			timer = new DispatcherTimer();
+			timer.Interval = TimeSpan.FromSeconds(3);
+			timer.Tick += Timer_HideError;
+			timer.Start();
+		}
+
+		private void Timer_HideError(object? sender, object e)
+		{
+			ValidationError.Visibility = Visibility.Collapsed;
+			timer.Stop();
 		}
 	}
 }
