@@ -27,5 +27,14 @@ namespace ActivityTracker.Models
 			}
 			return clientList;
 		}
+
+		public List<string> GetAllStaffInDay()
+		{
+			var staffList = new List<string>();
+			foreach (var staff in AllStaffPerDay) {
+				staffList.Add(staff.StaffName);
+			}
+			return staffList;
+		}
 	}
 }

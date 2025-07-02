@@ -195,7 +195,7 @@ namespace ActivityTracker.Views
 		public void Clients_DropCompleted(object sender, DropCompletedEventArgs e)
 		{
 			draggedClient = "";
-			clientDayOfTheWeekDraggedOver = null;
+			dayOfTheWeekDraggedOver = null;
 		}
 
 		private static string draggedStaff = "";
@@ -214,14 +214,15 @@ namespace ActivityTracker.Views
 		public void Staff_DropCompleted(object sender, DropCompletedEventArgs e)
 		{
 			draggedStaff = "";
+			dayOfTheWeekDraggedOver = null;
 		}
 
-		private static string? clientDayOfTheWeekDraggedOver = null;
+		private static string? dayOfTheWeekDraggedOver = null;
 		public void ItemViews_Drag(object sender, DragEventArgs e)
 		{
 			var itemView = sender as ItemsView;
 			if (itemView != null) {
-				clientDayOfTheWeekDraggedOver = itemView.Name;
+				dayOfTheWeekDraggedOver = itemView.Name;
 			}
 		}
 
@@ -237,7 +238,6 @@ namespace ActivityTracker.Views
 				}
 			}
 			draggedClient = "";
-			clientDayOfTheWeekDraggedOver = null;
 
 			if (!string.IsNullOrWhiteSpace(draggedStaff)) {
 				var grid = sender as Grid;
@@ -246,12 +246,13 @@ namespace ActivityTracker.Views
 					if (staffGrid != null && staffGrid.Children.Count > 1) {
 						var textbox = staffGrid.Children[1] as TextBox;
 						if (textbox != null) {
-							textbox.Text = draggedStaff;
+							verifyStaffCanBeDropped(textbox);
 						}
 					}
 				}
 			}
 			draggedStaff = "";
+			dayOfTheWeekDraggedOver = null;
 		}
 
 		private void verifyClientCanBeDropped(TextBox textbox)
@@ -271,7 +272,7 @@ namespace ActivityTracker.Views
 		private List<string> GetClientsInDroppedClientColumn()
 		{
 			var clients = new List<string>();
-			switch (clientDayOfTheWeekDraggedOver) {
+			switch (dayOfTheWeekDraggedOver) {
 				case "monday":
 					clients = Monday.GetAllClientsInDay();
 					break;
@@ -289,6 +290,42 @@ namespace ActivityTracker.Views
 					break;
 			}
 			return clients;
+		}
+
+		private void verifyStaffCanBeDropped(TextBox textbox)
+		{
+			var staffVerifier = new StaffVerifier();
+			var allStaffActiveInDay = GetStaffInDroppedColumn();
+			var staffCanBePlacedErrors = staffVerifier.VerifyStaff(draggedStaff, allStaffActiveInDay);
+			if (staffCanBePlacedErrors.Count == 0) {
+				textbox.Text = draggedStaff + Environment.NewLine;
+			}
+			else {
+				DisplayError(staffCanBePlacedErrors);
+			}
+		}
+
+		private List<string> GetStaffInDroppedColumn()
+		{
+			var staff = new List<string>();
+			switch (dayOfTheWeekDraggedOver) {
+				case "monday":
+					staff = Monday.GetAllStaffInDay();
+					break;
+				case "tuesday":
+					staff = Tuesday.GetAllStaffInDay();
+					break;
+				case "wednesday":
+					staff = Wednesday.GetAllStaffInDay();
+					break;
+				case "thursday":
+					staff = Thursday.GetAllStaffInDay();
+					break;
+				case "friday":
+					staff = Friday.GetAllStaffInDay();
+					break;
+			}
+			return staff;
 		}
 
 		private void DisplayError(List<string> ErrorMessages)

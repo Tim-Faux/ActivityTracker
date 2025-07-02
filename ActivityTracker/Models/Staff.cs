@@ -4,7 +4,7 @@ namespace ActivityTracker.Models
 {
     public partial class Staff : INotifyPropertyChanged
 	{
-		public string StaffNames { get; set; } = "";
+		public string StaffName { get; set; } = "";
 
 		public string Activity { get; set; } = "";
 
