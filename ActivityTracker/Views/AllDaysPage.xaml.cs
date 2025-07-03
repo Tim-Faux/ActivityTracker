@@ -172,7 +172,6 @@ namespace ActivityTracker.Views
 
 			document.Save(storageFolder.Path + "\\" + fileName, FormatType.Docx);
 			document.Close();
-
 		}
 
 		private void SingleDay_DragOver(object sender, DragEventArgs e)

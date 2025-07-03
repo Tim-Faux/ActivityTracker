@@ -33,45 +33,45 @@ namespace ActivityTracker.Helpers
 			IWTable table = section.AddTable();
 			table.ResetCells(SingleDay.numberOfStaff + 1, 5);
 
-			table = SetTableHeader(table);
+			table = SetTableHeader(table, daysInWeek);
 			table = SetTableContent(table, daysInWeek);
 		}
 
-		private static IWTable SetTableHeader(IWTable table)
+		private static IWTable SetTableHeader(IWTable table, SingleDay[] daysInWeek)
 		{
 			table.Rows[0].Height = headerCellHeight;
 
 			var mondayCell = table.Rows[0].Cells[0];
 			var paragraph = mondayCell.AddParagraph();
-			IWTextRange textRange = paragraph.AppendText("Monday");
+			IWTextRange textRange = paragraph.AppendText($"Monday {daysInWeek[0].Date?.ToString("M/d")}");
 			mondayCell.Width = columnWidth;
 			textRange.CharacterFormat.Bold = true;
 			textRange.CharacterFormat.FontName = "Aptos";
 
 			var tuesdayCell = table.Rows[0].Cells[1];
 			paragraph = tuesdayCell.AddParagraph();
-			textRange = paragraph.AppendText("Tuesday");
+			textRange = paragraph.AppendText($"Tuesday {daysInWeek[1].Date?.ToString("M/d")}");
 			tuesdayCell.Width = columnWidth;
 			textRange.CharacterFormat.Bold = true;
 			textRange.CharacterFormat.FontName = "Aptos";
 
 			var wednesdayCell = table.Rows[0].Cells[2];
 			paragraph = wednesdayCell.AddParagraph();
-			textRange = paragraph.AppendText("Wednesday");
+			textRange = paragraph.AppendText($"Wednesday {daysInWeek[2].Date?.ToString("M/d")}");
 			wednesdayCell.Width = columnWidth;
 			textRange.CharacterFormat.Bold = true;
 			textRange.CharacterFormat.FontName = "Aptos";
 
 			var thursdayCell = table.Rows[0].Cells[3];
 			paragraph = thursdayCell.AddParagraph();
-			textRange = paragraph.AppendText("Thurday");
+			textRange = paragraph.AppendText($"Thurday {daysInWeek[3].Date?.ToString("M/d")}");
 			thursdayCell.Width = columnWidth;
 			textRange.CharacterFormat.Bold = true;
 			textRange.CharacterFormat.FontName = "Aptos";
 
 			var fridayCell = table.Rows[0].Cells[4];
 			paragraph = fridayCell.AddParagraph();
-			textRange = paragraph.AppendText("Friday");
+			textRange = paragraph.AppendText($"Friday {daysInWeek[4].Date?.ToString("M/d")}");
 			fridayCell.Width = columnWidth;
 			textRange.CharacterFormat.Bold = true;
 			textRange.CharacterFormat.FontName = "Aptos";
