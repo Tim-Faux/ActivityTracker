@@ -13,6 +13,8 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Syncfusion.DocIO;
 using Syncfusion.DocIO.DLS;
+using Syncfusion.UI.Xaml.Calendar;
+using Syncfusion.UI.Xaml.Editors;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 
@@ -344,5 +346,78 @@ namespace ActivityTracker.Views
 			ValidationError.Visibility = Visibility.Collapsed;
 			timer.Stop();
 		}
+
+		#region DisableCalendarDays Handlers
+		private void DisableAllCalendarDaysExceptMonday(object sender, CalendarItemPreparedEventArgs e)
+		{
+			DisableAllCalendarDaysExceptSpecificDay(sender, e, DayOfWeek.Monday);
+		}
+
+		private void DisableAllCalendarDaysExceptTuesday(object sender, CalendarItemPreparedEventArgs e)
+		{
+			DisableAllCalendarDaysExceptSpecificDay(sender, e, DayOfWeek.Tuesday);
+		}
+
+		private void DisableAllCalendarDaysExceptWednesday(object sender, CalendarItemPreparedEventArgs e)
+		{
+			DisableAllCalendarDaysExceptSpecificDay(sender, e, DayOfWeek.Wednesday);
+		}
+
+		private void DisableAllCalendarDaysExceptThursday(object sender, CalendarItemPreparedEventArgs e)
+		{
+			DisableAllCalendarDaysExceptSpecificDay(sender, e, DayOfWeek.Thursday);
+		}
+
+		private void DisableAllCalendarDaysExceptFriday(object sender, CalendarItemPreparedEventArgs e)
+		{
+			DisableAllCalendarDaysExceptSpecificDay(sender, e, DayOfWeek.Friday);
+		}
+
+		private void DisableAllCalendarDaysExceptSpecificDay(object sender, CalendarItemPreparedEventArgs e, DayOfWeek acceptedDay)
+		{
+			var calender = sender as SfCalendar;
+			if (calender != null && e.ItemInfo.ItemType == CalendarItemType.Day && e.ItemInfo.Date.DayOfWeek != acceptedDay) {
+				e.ItemInfo.IsBlackout = true;
+			}
+		}
+		#endregion
+
+		#region DateChanging handlers
+		private void SelectedMondayDateChanging(object sender, DateChangingEventArgs e)
+		{
+			VerifyDayOfWeek(e, DayOfWeek.Monday);
+		}
+
+		private void SelectedTuesdayDateChanging(object sender, DateChangingEventArgs e)
+		{
+			VerifyDayOfWeek(e, DayOfWeek.Tuesday);
+		}
+
+		private void SelectedWednesdayDateChanging(object sender, DateChangingEventArgs e)
+		{
+			VerifyDayOfWeek(e, DayOfWeek.Wednesday);
+		}
+
+		private void SelectedThursdayDateChanging(object sender, DateChangingEventArgs e)
+		{
+			VerifyDayOfWeek(e, DayOfWeek.Thursday);
+		}
+
+		private void SelectedFridayDateChanging(object sender, DateChangingEventArgs e)
+		{
+			VerifyDayOfWeek(e, DayOfWeek.Friday);
+		}
+
+		private void VerifyDayOfWeek(DateChangingEventArgs e, DayOfWeek dayOfWeek)
+		{
+			if (e.NewDate.HasValue) {
+				var errors = WeeklyDateVerifier.VerifyDate(e.NewDate.Value.Date, dayOfWeek);
+				if (errors != null && errors.Count > 0) {
+					DisplayError(errors);
+					e.Cancel = true;
+				}
+			}
+		}
+		#endregion
 	}
 }
