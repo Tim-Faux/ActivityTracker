@@ -411,12 +411,41 @@ namespace ActivityTracker.Views
 		private void VerifyDayOfWeek(DateChangingEventArgs e, DayOfWeek dayOfWeek)
 		{
 			if (e.NewDate.HasValue) {
-				var errors = WeeklyDateVerifier.VerifyDate(e.NewDate.Value.Date, dayOfWeek);
+				var date = e.NewDate.Value.Date;
+				var errors = WeeklyDateVerifier.VerifyDate(date, dayOfWeek);
 				if (errors != null && errors.Count > 0) {
 					DisplayError(errors);
 					e.Cancel = true;
 				}
+				else {
+					switch (dayOfWeek) {
+						case DayOfWeek.Monday:
+							SetNewDates(date);
+							break;
+						case DayOfWeek.Tuesday:
+							SetNewDates(date.AddDays(-1));
+							break;
+						case DayOfWeek.Wednesday:
+							SetNewDates(date.AddDays(-2));
+							break;
+						case DayOfWeek.Thursday:
+							SetNewDates(date.AddDays(-3));
+							break;
+						case DayOfWeek.Friday:
+							SetNewDates(date.AddDays(-4));
+							break;
+					}
+				}
 			}
+		}
+
+		private void SetNewDates(DateTime mondayDate)
+		{
+			mondayCalendar.SelectedDate = mondayDate;
+			tuesdayCalendar.SelectedDate = mondayDate.AddDays(1);
+			wednesdayCalendar.SelectedDate = mondayDate.AddDays(2);
+			thursdayCalendar.SelectedDate = mondayDate.AddDays(3);
+			fridayCalendar.SelectedDate = mondayDate.AddDays(4);
 		}
 		#endregion
 	}
