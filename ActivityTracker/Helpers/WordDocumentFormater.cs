@@ -7,9 +7,9 @@ namespace ActivityTracker.Helpers
 {
     public static class WordDocumentFormater
     {
-		private const int columnWidth = 100;
+		private const int columnWidth = 144;
 		private const int headerCellHeight = 30;
-		private const int contentCellHeight = 100;
+		private const int contentCellHeight = 62;
 
 		public static WordDocument FormatWeekScheduleDoc(SingleDay[] daysInWeek)
 		{
@@ -18,12 +18,9 @@ namespace ActivityTracker.Helpers
 			IWSection section = document.AddSection();
 			section.PageSetup.Orientation = PageOrientation.Landscape;
 			IWParagraph paragraph = section.AddParagraph();
-			paragraph.ParagraphFormat.FirstLineIndent = 36;
-			paragraph.BreakCharacterFormat.FontSize = 12f;
 
 			CreateTable(section, daysInWeek);
-			IWSection activitySuggestionSection = document.AddSection();
-			AddActivitySuggestionDaysOfTheWeek(activitySuggestionSection);
+			AddActivitySuggestionDaysOfTheWeek(section);
 
 			return document;
 		}
@@ -33,8 +30,8 @@ namespace ActivityTracker.Helpers
 			IWTable table = section.AddTable();
 			table.ResetCells(SingleDay.numberOfStaff + 1, 5);
 
-			table = SetTableHeader(table, daysInWeek);
-			table = SetTableContent(table, daysInWeek);
+			SetTableHeader(table, daysInWeek);
+			SetTableContent(table, daysInWeek);
 		}
 
 		private static IWTable SetTableHeader(IWTable table, SingleDay[] daysInWeek)
@@ -64,7 +61,7 @@ namespace ActivityTracker.Helpers
 
 			var thursdayCell = table.Rows[0].Cells[3];
 			paragraph = thursdayCell.AddParagraph();
-			textRange = paragraph.AppendText($"Thurday {daysInWeek[3].Date?.ToString("M/d")}");
+			textRange = paragraph.AppendText($"Thursday {daysInWeek[3].Date?.ToString("M/d")}");
 			thursdayCell.Width = columnWidth;
 			textRange.CharacterFormat.Bold = true;
 			textRange.CharacterFormat.FontName = "Aptos";
@@ -90,15 +87,15 @@ namespace ActivityTracker.Helpers
 
 					IWTextRange textRange = paragraph.AppendText($"{singleDayInformation.Activity} ");
 					textRange.CharacterFormat.TextColor = Color.Red;
-					textRange.CharacterFormat.FontName = "Aptos";
+					textRange.CharacterFormat.FontName = "Aptos (body)";
 
 					textRange = paragraph.AppendText($"{singleDayInformation.StaffName}{Environment.NewLine}");
 					textRange.CharacterFormat.TextColor = Color.Blue;
-					textRange.CharacterFormat.FontName = "Aptos";
+					textRange.CharacterFormat.FontName = "Aptos (body)";
 
 					textRange = paragraph.AppendText(singleDayInformation.ClientNames);
 					textRange.CharacterFormat.TextColor = Color.Black;
-					textRange.CharacterFormat.FontName = "Aptos";
+					textRange.CharacterFormat.FontName = "Aptos (body)";
 					currentCell.Width = columnWidth;
 
 					table.Rows[currentRow].Height = contentCellHeight;
@@ -114,13 +111,14 @@ namespace ActivityTracker.Helpers
 		{
 			var paragraph = section.AddParagraph();
 			paragraph.ParagraphFormat.AfterSpacing = 8f;
-			IWTextRange daysOfTheWeek = paragraph.AppendText("Week schedule" + Environment.NewLine +
-				"Monday: " + Environment.NewLine +
+			IWTextRange weekScheduleHeader = paragraph.AppendText("Week schedule" + Environment.NewLine);
+			weekScheduleHeader.CharacterFormat.Bold = true;
+			weekScheduleHeader.CharacterFormat.FontName = "Aptos (body)";
+			IWTextRange daysOfTheWeek = paragraph.AppendText("Monday: " + Environment.NewLine +
 				"Tuesday: " + Environment.NewLine +
 				"Wednesday: " + Environment.NewLine +
 				"Thursday: " + Environment.NewLine +
-				"Friday: " + Environment.NewLine);
-			daysOfTheWeek.CharacterFormat.FontName = "Aptos";
+				"Friday: ");
 		}
 	}
 }
