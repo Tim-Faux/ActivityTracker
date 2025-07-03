@@ -21,7 +21,11 @@ using Windows.Storage;
 namespace ActivityTracker.Views
 {
 	public sealed partial class AllDaysPage : Page
-    {
+	{
+		private const int SuccessBarDisplayTimeSeconds = 3;
+		private const int WarningBarDisplayTimeSeconds = 3;
+		private const int ErrorBarDisplayTimeSeconds = 3;
+
 		private SingleDay Monday = new();
 		private SingleDay Tuesday = new();
 		private SingleDay Wednesday = new();
@@ -165,10 +169,18 @@ namespace ActivityTracker.Views
 
 		public void SaveToDocument(object sender, RoutedEventArgs e)
 		{
-			string fileName = "note.docx";
+			string titleDate = Monday.Date.HasValue ? Monday.Date.Value.ToString("M.d") : DateTime.Now.ToString("M.d");
+			string fileName = $"week schedule {titleDate}.docx";
 			Assembly assembly = typeof(App).GetTypeInfo().Assembly;
 			SingleDay[] daysInWeek = { Monday, Tuesday, Wednesday, Thursday, Friday };
 			WordDocument document = WordDocumentFormater.FormatWeekScheduleDoc(daysInWeek);
+
+			if (!Monday.Date.HasValue || !Tuesday.Date.HasValue || !Wednesday.Date.HasValue || !Thursday.Date.HasValue || !Friday.Date.HasValue) {
+				DisplayWarning(new List<string> { "The document has been saved but there were dates missing. Please review and save again" });
+			}
+			else {
+				DisplaySuccess(new List<string> { "The document has been successful saved" });
+			}
 
 			document.Save(storageFolder.Path + "\\" + fileName, FormatType.Docx);
 			document.Close();
@@ -329,13 +341,41 @@ namespace ActivityTracker.Views
 			return staff;
 		}
 
+		private void DisplaySuccess(List<string> SuccessMessages)
+		{
+			ValidationError.Visibility = Visibility.Visible;
+			ValidationError.Severity = InfoBarSeverity.Success;
+			ValidationError.Title = "Success";
+			ValidationError.Message = string.Join(Environment.NewLine, SuccessMessages);
+
+			timer = new DispatcherTimer();
+			timer.Interval = TimeSpan.FromSeconds(SuccessBarDisplayTimeSeconds);
+			timer.Tick += Timer_HideError;
+			timer.Start();
+		}
+
+		private void DisplayWarning(List<string> WarningMessages)
+		{
+			ValidationError.Visibility = Visibility.Visible;
+			ValidationError.Severity = InfoBarSeverity.Warning;
+			ValidationError.Title = "Warning";
+			ValidationError.Message = string.Join(Environment.NewLine, WarningMessages);
+
+			timer = new DispatcherTimer();
+			timer.Interval = TimeSpan.FromSeconds(WarningBarDisplayTimeSeconds);
+			timer.Tick += Timer_HideError;
+			timer.Start();
+		}
+
 		private void DisplayError(List<string> ErrorMessages)
 		{
 			ValidationError.Visibility = Visibility.Visible;
+			ValidationError.Severity = InfoBarSeverity.Error;
+			ValidationError.Title = "Error";
 			ValidationError.Message = string.Join(Environment.NewLine, ErrorMessages);
 
 			timer = new DispatcherTimer();
-			timer.Interval = TimeSpan.FromSeconds(3);
+			timer.Interval = TimeSpan.FromSeconds(ErrorBarDisplayTimeSeconds);
 			timer.Tick += Timer_HideError;
 			timer.Start();
 		}
