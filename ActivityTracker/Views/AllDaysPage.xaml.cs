@@ -13,13 +13,19 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Syncfusion.DocIO;
 using Syncfusion.DocIO.DLS;
+using Syncfusion.UI.Xaml.Calendar;
+using Syncfusion.UI.Xaml.Editors;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 
 namespace ActivityTracker.Views
 {
 	public sealed partial class AllDaysPage : Page
-    {
+	{
+		private const int SuccessBarDisplayTimeSeconds = 3;
+		private const int WarningBarDisplayTimeSeconds = 3;
+		private const int ErrorBarDisplayTimeSeconds = 3;
+
 		private SingleDay Monday = new();
 		private SingleDay Tuesday = new();
 		private SingleDay Wednesday = new();
@@ -163,14 +169,21 @@ namespace ActivityTracker.Views
 
 		public void SaveToDocument(object sender, RoutedEventArgs e)
 		{
-			string fileName = "note.docx";
+			string titleDate = Monday.Date.HasValue ? Monday.Date.Value.ToString("M.d") : DateTime.Now.ToString("M.d");
+			string fileName = $"week schedule {titleDate}.docx";
 			Assembly assembly = typeof(App).GetTypeInfo().Assembly;
 			SingleDay[] daysInWeek = { Monday, Tuesday, Wednesday, Thursday, Friday };
 			WordDocument document = WordDocumentFormater.FormatWeekScheduleDoc(daysInWeek);
 
+			if (!Monday.Date.HasValue || !Tuesday.Date.HasValue || !Wednesday.Date.HasValue || !Thursday.Date.HasValue || !Friday.Date.HasValue) {
+				DisplayWarning(new List<string> { "The document has been saved but there were dates missing. Please review and save again" });
+			}
+			else {
+				DisplaySuccess(new List<string> { "The document has been successful saved" });
+			}
+
 			document.Save(storageFolder.Path + "\\" + fileName, FormatType.Docx);
 			document.Close();
-
 		}
 
 		private void SingleDay_DragOver(object sender, DragEventArgs e)
@@ -328,13 +341,41 @@ namespace ActivityTracker.Views
 			return staff;
 		}
 
+		private void DisplaySuccess(List<string> SuccessMessages)
+		{
+			ValidationError.Visibility = Visibility.Visible;
+			ValidationError.Severity = InfoBarSeverity.Success;
+			ValidationError.Title = "Success";
+			ValidationError.Message = string.Join(Environment.NewLine, SuccessMessages);
+
+			timer = new DispatcherTimer();
+			timer.Interval = TimeSpan.FromSeconds(SuccessBarDisplayTimeSeconds);
+			timer.Tick += Timer_HideError;
+			timer.Start();
+		}
+
+		private void DisplayWarning(List<string> WarningMessages)
+		{
+			ValidationError.Visibility = Visibility.Visible;
+			ValidationError.Severity = InfoBarSeverity.Warning;
+			ValidationError.Title = "Warning";
+			ValidationError.Message = string.Join(Environment.NewLine, WarningMessages);
+
+			timer = new DispatcherTimer();
+			timer.Interval = TimeSpan.FromSeconds(WarningBarDisplayTimeSeconds);
+			timer.Tick += Timer_HideError;
+			timer.Start();
+		}
+
 		private void DisplayError(List<string> ErrorMessages)
 		{
 			ValidationError.Visibility = Visibility.Visible;
+			ValidationError.Severity = InfoBarSeverity.Error;
+			ValidationError.Title = "Error";
 			ValidationError.Message = string.Join(Environment.NewLine, ErrorMessages);
 
 			timer = new DispatcherTimer();
-			timer.Interval = TimeSpan.FromSeconds(3);
+			timer.Interval = TimeSpan.FromSeconds(ErrorBarDisplayTimeSeconds);
 			timer.Tick += Timer_HideError;
 			timer.Start();
 		}
@@ -344,5 +385,107 @@ namespace ActivityTracker.Views
 			ValidationError.Visibility = Visibility.Collapsed;
 			timer.Stop();
 		}
+
+		#region DisableCalendarDays Handlers
+		private void DisableAllCalendarDaysExceptMonday(object sender, CalendarItemPreparedEventArgs e)
+		{
+			DisableAllCalendarDaysExceptSpecificDay(sender, e, DayOfWeek.Monday);
+		}
+
+		private void DisableAllCalendarDaysExceptTuesday(object sender, CalendarItemPreparedEventArgs e)
+		{
+			DisableAllCalendarDaysExceptSpecificDay(sender, e, DayOfWeek.Tuesday);
+		}
+
+		private void DisableAllCalendarDaysExceptWednesday(object sender, CalendarItemPreparedEventArgs e)
+		{
+			DisableAllCalendarDaysExceptSpecificDay(sender, e, DayOfWeek.Wednesday);
+		}
+
+		private void DisableAllCalendarDaysExceptThursday(object sender, CalendarItemPreparedEventArgs e)
+		{
+			DisableAllCalendarDaysExceptSpecificDay(sender, e, DayOfWeek.Thursday);
+		}
+
+		private void DisableAllCalendarDaysExceptFriday(object sender, CalendarItemPreparedEventArgs e)
+		{
+			DisableAllCalendarDaysExceptSpecificDay(sender, e, DayOfWeek.Friday);
+		}
+
+		private void DisableAllCalendarDaysExceptSpecificDay(object sender, CalendarItemPreparedEventArgs e, DayOfWeek acceptedDay)
+		{
+			var calender = sender as SfCalendar;
+			if (calender != null && e.ItemInfo.ItemType == CalendarItemType.Day && e.ItemInfo.Date.DayOfWeek != acceptedDay) {
+				e.ItemInfo.IsBlackout = true;
+			}
+		}
+		#endregion
+
+		#region DateChanging handlers
+		private void SelectedMondayDateChanging(object sender, DateChangingEventArgs e)
+		{
+			VerifyDayOfWeek(e, DayOfWeek.Monday);
+		}
+
+		private void SelectedTuesdayDateChanging(object sender, DateChangingEventArgs e)
+		{
+			VerifyDayOfWeek(e, DayOfWeek.Tuesday);
+		}
+
+		private void SelectedWednesdayDateChanging(object sender, DateChangingEventArgs e)
+		{
+			VerifyDayOfWeek(e, DayOfWeek.Wednesday);
+		}
+
+		private void SelectedThursdayDateChanging(object sender, DateChangingEventArgs e)
+		{
+			VerifyDayOfWeek(e, DayOfWeek.Thursday);
+		}
+
+		private void SelectedFridayDateChanging(object sender, DateChangingEventArgs e)
+		{
+			VerifyDayOfWeek(e, DayOfWeek.Friday);
+		}
+
+		private void VerifyDayOfWeek(DateChangingEventArgs e, DayOfWeek dayOfWeek)
+		{
+			if (e.NewDate.HasValue) {
+				var date = e.NewDate.Value.Date;
+				var errors = WeeklyDateVerifier.VerifyDate(date, dayOfWeek);
+				if (errors != null && errors.Count > 0) {
+					DisplayError(errors);
+					e.Cancel = true;
+				}
+				else {
+					switch (dayOfWeek) {
+						case DayOfWeek.Monday:
+							SetNewDates(date);
+							break;
+						case DayOfWeek.Tuesday:
+							SetNewDates(date.AddDays(-1));
+							break;
+						case DayOfWeek.Wednesday:
+							SetNewDates(date.AddDays(-2));
+							break;
+						case DayOfWeek.Thursday:
+							SetNewDates(date.AddDays(-3));
+							break;
+						case DayOfWeek.Friday:
+							SetNewDates(date.AddDays(-4));
+							break;
+					}
+				}
+			}
+		}
+
+		private void SetNewDates(DateTime mondayDate)
+		{
+			mondayCalendar.SelectedDate = mondayDate;
+			tuesdayCalendar.SelectedDate = mondayDate.AddDays(1);
+			wednesdayCalendar.SelectedDate = mondayDate.AddDays(2);
+			thursdayCalendar.SelectedDate = mondayDate.AddDays(3);
+			fridayCalendar.SelectedDate = mondayDate.AddDays(4);
+		}
+		#endregion
 	}
 }

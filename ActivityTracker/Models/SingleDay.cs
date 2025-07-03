@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace ActivityTracker.Models
@@ -7,6 +8,7 @@ namespace ActivityTracker.Models
     {
 		public const int numberOfStaff = 8;
 		public ObservableCollection<Staff> AllStaffPerDay { get; set; } = new ObservableCollection<Staff>();
+		public DateTimeOffset? Date { get; set; }
 		public SingleDay()
 		{
 			CreateAllStaffPerDayList();
