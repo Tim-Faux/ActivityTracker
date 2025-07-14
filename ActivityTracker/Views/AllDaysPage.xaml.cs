@@ -186,6 +186,23 @@ namespace ActivityTracker.Views
 			document.Close();
 		}
 
+		public async void ImportDataFromFile(object sender, RoutedEventArgs e)
+		{
+			var importedDays = await WordDocumentImporter.ImportWordDocument();
+			if (importedDays != null) {
+				Monday.ImportData(importedDays[DaysOfTheWeek.Monday]);
+				Tuesday.ImportData(importedDays[DaysOfTheWeek.Tuesday]);
+				Wednesday.ImportData(importedDays[DaysOfTheWeek.Wednesday]);
+				Thursday.ImportData(importedDays[DaysOfTheWeek.Thursday]);
+				Friday.ImportData(importedDays[DaysOfTheWeek.Friday]);
+
+				DisplaySuccess(new List<string> { "File successfully imported" });
+			}
+			else {
+				DisplayError(new List<string> { "File could not be imported. Please ensure the file's formatting is correct" });
+			}
+		}
+
 		private void SingleDay_DragOver(object sender, DragEventArgs e)
 		{
 			e.AcceptedOperation = DataPackageOperation.Copy;
