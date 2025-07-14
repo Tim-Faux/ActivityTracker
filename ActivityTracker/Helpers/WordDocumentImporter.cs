@@ -37,17 +37,26 @@ namespace ActivityTracker.Helpers
 			}
 		}
 
-		private static async Task<Dictionary<DaysOfTheWeek, SingleDay>> ParseWordDoc(StorageFile file)
+		private static async Task<Dictionary<DaysOfTheWeek, SingleDay>?> ParseWordDoc(StorageFile file)
 		{
 			var allDays = new Dictionary<DaysOfTheWeek, SingleDay>();
 			using (var wordDocStream = await file.OpenStreamForReadAsync()) {
 
 				WordDocument document = new WordDocument(wordDocStream, FormatType.Automatic);
+				if (document.Sections.Count < 1)
+					return null;
 				var tableSection = document.Sections[0];
+
+				if(tableSection.Tables.Count < 1)
+					return null;
 				var table = tableSection.Tables[0];
+
+				if(table.Rows.Count < 2)
+					return null;
+
 				for (int row = 1; row < table.Rows.Count; row++) {
 					WTableRow currentRow = table.Rows[row];
-					for (int column = 0; column < currentRow.Cells.Count; column++) {
+					for (int column = 0; column < currentRow.Cells.Count && daysOfTheWeek.Length > column; column++) {
 						var singleDay = allDays.ContainsKey(daysOfTheWeek[column]) ? allDays[daysOfTheWeek[column]] : new SingleDay();
 						var paragraphs = currentRow.Cells[column].Paragraphs;
 

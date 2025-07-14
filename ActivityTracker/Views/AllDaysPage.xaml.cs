@@ -190,13 +190,36 @@ namespace ActivityTracker.Views
 		{
 			var importedDays = await WordDocumentImporter.ImportWordDocument();
 			if (importedDays != null) {
-				Monday.ImportData(importedDays[DaysOfTheWeek.Monday]);
-				Tuesday.ImportData(importedDays[DaysOfTheWeek.Tuesday]);
-				Wednesday.ImportData(importedDays[DaysOfTheWeek.Wednesday]);
-				Thursday.ImportData(importedDays[DaysOfTheWeek.Thursday]);
-				Friday.ImportData(importedDays[DaysOfTheWeek.Friday]);
+				var importMismatch = false;
+				if(importedDays.ContainsKey(DaysOfTheWeek.Monday))
+					Monday.ImportData(importedDays[DaysOfTheWeek.Monday]);
+				else
+					importMismatch = true; 
 
-				DisplaySuccess(new List<string> { "File successfully imported" });
+				if (importedDays.ContainsKey(DaysOfTheWeek.Tuesday))
+					Tuesday.ImportData(importedDays[DaysOfTheWeek.Tuesday]);
+				else
+					importMismatch = true; 
+
+				if (importedDays.ContainsKey(DaysOfTheWeek.Wednesday))
+					Wednesday.ImportData(importedDays[DaysOfTheWeek.Wednesday]);
+				else
+					importMismatch = true; 
+
+				if (importedDays.ContainsKey(DaysOfTheWeek.Thursday))
+					Thursday.ImportData(importedDays[DaysOfTheWeek.Thursday]);
+				else
+					importMismatch = true;
+
+				if (importedDays.ContainsKey(DaysOfTheWeek.Friday))
+					Friday.ImportData(importedDays[DaysOfTheWeek.Friday]);
+				else
+					importMismatch = true;
+
+				if(importMismatch)
+					DisplayWarning(new List<string> { "File successfully imported but did not match expected formatting. Please review the data to ensure nothing was lost" });
+				else
+					DisplaySuccess(new List<string> { "File successfully imported" });
 			}
 			else {
 				DisplayError(new List<string> { "File could not be imported. Please ensure the file's formatting is correct" });
