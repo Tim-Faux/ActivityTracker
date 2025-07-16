@@ -42,6 +42,10 @@ namespace ActivityTracker.Models
 
 		public void ImportData(SingleDay data)
 		{
+			for (var staffIndex = 0; staffIndex < AllStaffPerDay.Count && staffIndex < data.AllStaffPerDay.Count; staffIndex++) {
+				AllClients.UpdateData(AllStaffPerDay[staffIndex].ClientNames.Split("\r"), data.AllStaffPerDay[staffIndex].ClientNames.Split("\r"));
+			}
+
 			AllStaffPerDay.Clear();
 			AllStaffPerDay.AddRange(data.AllStaffPerDay);
 			Date = data.Date;

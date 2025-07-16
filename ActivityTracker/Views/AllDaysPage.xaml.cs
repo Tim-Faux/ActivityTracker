@@ -138,6 +138,10 @@ namespace ActivityTracker.Views
 								$"{clientName} X{clientsInActivity[clientName]}" :
 								clientName;
 						}
+						else {
+							clientTextBlock.Foreground = new SolidColorBrush(Colors.Black);
+							clientTextBlock.Text = clientName;
+						}
 					}
 				}
 			}
