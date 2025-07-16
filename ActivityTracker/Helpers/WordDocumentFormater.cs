@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using ActivityTracker.Models;
 using Syncfusion.DocIO.DLS;
 using Syncfusion.Drawing;
@@ -11,7 +12,7 @@ namespace ActivityTracker.Helpers
 		private const int headerCellHeight = 30;
 		private const int contentCellHeight = 62;
 
-		public static WordDocument FormatWeekScheduleDoc(SingleDay[] daysInWeek)
+		public static WordDocument FormatWeekScheduleDoc(SingleDay[] daysInWeek, IWParagraphCollection? documentEndingSections)
 		{
 			WordDocument document = new WordDocument();
 
@@ -20,7 +21,7 @@ namespace ActivityTracker.Helpers
 			IWParagraph paragraph = section.AddParagraph();
 
 			CreateTable(section, daysInWeek);
-			AddActivitySuggestionDaysOfTheWeek(section);
+			AddDocumentEndingSections(section, documentEndingSections);
 
 			return document;
 		}
@@ -105,6 +106,33 @@ namespace ActivityTracker.Helpers
 			}
 
 			return table;
+		}
+
+		private static void AddDocumentEndingSections(IWSection section, IWParagraphCollection? documentEndingSections)
+		{
+			if (documentEndingSections != null && documentEndingSections.Count > 0) {
+				AddExistingEndingSection(section, documentEndingSections);
+			}
+			else {
+				AddActivitySuggestionDaysOfTheWeek(section);
+			}
+		}
+
+		private static void AddExistingEndingSection(IWSection section, IWParagraphCollection documentEndingSections)
+		{
+			var endingParagraphsToAdd = new List<WParagraph>();
+			var endingSectionContainsActivitySuggestions = false;
+			foreach (WParagraph endingParagraph in documentEndingSections) {
+				var clonedParagraph = endingParagraph.Clone() as WParagraph;
+				if (clonedParagraph != null) {
+					endingSectionContainsActivitySuggestions = endingSectionContainsActivitySuggestions || clonedParagraph.Text.ToLower().Trim().Contains("week schedule");
+					endingParagraphsToAdd.Add(clonedParagraph);
+				}
+			}
+			if (!endingSectionContainsActivitySuggestions) {
+				AddActivitySuggestionDaysOfTheWeek(section);
+			}
+			endingParagraphsToAdd.ForEach(s => section.Paragraphs.Add(s));
 		}
 
 		private static void AddActivitySuggestionDaysOfTheWeek(IWSection section)

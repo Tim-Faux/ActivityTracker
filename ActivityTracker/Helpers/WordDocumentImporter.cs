@@ -14,7 +14,7 @@ namespace ActivityTracker.Helpers
 	public static class WordDocumentImporter
 	{
 		private static DaysOfTheWeek[] daysOfTheWeek = [DaysOfTheWeek.Monday, DaysOfTheWeek.Tuesday, DaysOfTheWeek.Wednesday, DaysOfTheWeek.Thursday, DaysOfTheWeek.Friday];
-		public static async Task<Dictionary<DaysOfTheWeek, SingleDay>?> ImportWordDocument()
+		public static async Task<ImportedFileData?> ImportWordDocument()
 		{
 			FileOpenPicker fileOpenPicker = new()
 			{
@@ -30,8 +30,18 @@ namespace ActivityTracker.Helpers
 
 			if (file != null && file.FileType == ".docx") {
 				var importedFileMondayDate = ParseDateFromTitle(file);
-				var parsedDocumentData = await ParseWordDoc(file, importedFileMondayDate);
-				
+				var weekScheduleTableData = await ParseWordDoc(file, importedFileMondayDate);
+
+				IWParagraphCollection? textAfterWeekSchedule = null;
+				if (weekScheduleTableData != null) {
+					textAfterWeekSchedule = await ParseTextAfterWeekSchedule(file);
+				}
+
+				var parsedDocumentData = new ImportedFileData {
+					WeekScheduleTableData = weekScheduleTableData,
+					MondayDate = importedFileMondayDate,
+					TextAfterWeekSchedule = textAfterWeekSchedule
+				};
 				return parsedDocumentData;
 			}
 			else {
@@ -43,7 +53,6 @@ namespace ActivityTracker.Helpers
 		{
 			var allDays = new Dictionary<DaysOfTheWeek, SingleDay>();
 			using (var wordDocStream = await file.OpenStreamForReadAsync()) {
-
 				WordDocument document = new WordDocument(wordDocStream, FormatType.Automatic);
 				if (document.Sections.Count < 1)
 					return null;
@@ -139,6 +148,17 @@ namespace ActivityTracker.Helpers
 				return fileNameDate;
 			else 
 				return null;
+		}
+
+		private async static Task<IWParagraphCollection?> ParseTextAfterWeekSchedule(StorageFile file)
+		{
+			using (var wordDocStream = await file.OpenStreamForReadAsync()) {
+				WordDocument document = new WordDocument(wordDocStream, FormatType.Automatic);
+				if (document.Sections.Count < 1)
+					return null;
+				var paragraphsAfterWeekSchedule = document.Sections[0].Paragraphs;
+				return paragraphsAfterWeekSchedule;
+			}
 		}
 	}
 }

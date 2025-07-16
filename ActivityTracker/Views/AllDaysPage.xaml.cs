@@ -33,6 +33,7 @@ namespace ActivityTracker.Views
 		private SingleDay Friday = new();
 		private StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
 		private DispatcherTimer timer;
+		private IWParagraphCollection? importedTextAfterWeekSchedule = null;
 
 		public AllDaysPage()
         {
@@ -177,7 +178,7 @@ namespace ActivityTracker.Views
 			string fileName = $"week schedule {titleDate}.docx";
 			Assembly assembly = typeof(App).GetTypeInfo().Assembly;
 			SingleDay[] daysInWeek = { Monday, Tuesday, Wednesday, Thursday, Friday };
-			WordDocument document = WordDocumentFormater.FormatWeekScheduleDoc(daysInWeek);
+			WordDocument document = WordDocumentFormater.FormatWeekScheduleDoc(daysInWeek, importedTextAfterWeekSchedule);
 
 			if (!Monday.Date.HasValue || !Tuesday.Date.HasValue || !Wednesday.Date.HasValue || !Thursday.Date.HasValue || !Friday.Date.HasValue) {
 				DisplayWarning(new List<string> { "The document has been saved but there were dates missing. Please review and save again" });
@@ -192,8 +193,10 @@ namespace ActivityTracker.Views
 
 		public async void ImportDataFromFile(object sender, RoutedEventArgs e)
 		{
-			var importedDays = await WordDocumentImporter.ImportWordDocument();
+			var importedFileData = await WordDocumentImporter.ImportWordDocument();
+			var importedDays = importedFileData?.WeekScheduleTableData;
 			if (importedDays != null) {
+				importedTextAfterWeekSchedule = importedFileData?.TextAfterWeekSchedule;
 				var importMismatch = false;
 				ClearDate();
 
