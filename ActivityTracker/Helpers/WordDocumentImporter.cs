@@ -29,7 +29,9 @@ namespace ActivityTracker.Helpers
 			StorageFile file = await fileOpenPicker.PickSingleFileAsync();
 
 			if (file != null && file.FileType == ".docx") {
-				var parsedDocumentData = await ParseWordDoc(file);
+				var importedFileMondayDate = ParseDateFromTitle(file);
+				var parsedDocumentData = await ParseWordDoc(file, importedFileMondayDate);
+				
 				return parsedDocumentData;
 			}
 			else {
@@ -37,7 +39,7 @@ namespace ActivityTracker.Helpers
 			}
 		}
 
-		private static async Task<Dictionary<DaysOfTheWeek, SingleDay>?> ParseWordDoc(StorageFile file)
+		private static async Task<Dictionary<DaysOfTheWeek, SingleDay>?> ParseWordDoc(StorageFile file, DateTime? mondayDate)
 		{
 			var allDays = new Dictionary<DaysOfTheWeek, SingleDay>();
 			using (var wordDocStream = await file.OpenStreamForReadAsync()) {
@@ -67,6 +69,8 @@ namespace ActivityTracker.Helpers
 							singleDay.AllStaffPerDay[row - 1].StaffName = activityAndStaff.Staff;
 							singleDay.AllStaffPerDay[row - 1].Activity = activityAndStaff.Activity;
 							singleDay.AllStaffPerDay[row - 1].ClientNames = clients;
+							if(mondayDate.HasValue)
+								singleDay.Date = mondayDate.Value.AddDays(column);
 
 							allDays.Remove(daysOfTheWeek[column]);
 							allDays.Add(daysOfTheWeek[column], singleDay);
@@ -123,6 +127,18 @@ namespace ActivityTracker.Helpers
 		{
 			public string Activity { get; set; } = "";
 			public string Staff { get; set; } = "";
+		}
+
+		private static DateTime? ParseDateFromTitle(StorageFile file) 
+		{
+			var fileName = file.DisplayName.ToLower();
+			var numCharBeforeDate = fileName.LastIndexOf("schedule") + "schedule".Length;
+			var dateString = fileName.Substring(numCharBeforeDate);
+
+			if (DateTime.TryParse(dateString, out var fileNameDate))
+				return fileNameDate;
+			else 
+				return null;
 		}
 	}
 }
