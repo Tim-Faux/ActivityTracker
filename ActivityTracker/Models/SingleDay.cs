@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using Microsoft.VisualStudio.Services.Common;
 
 namespace ActivityTracker.Models
 {
@@ -37,6 +38,17 @@ namespace ActivityTracker.Models
 				staffList.Add(staff.StaffName);
 			}
 			return staffList;
+		}
+
+		public void ImportData(SingleDay data)
+		{
+			for (var staffIndex = 0; staffIndex < AllStaffPerDay.Count && staffIndex < data.AllStaffPerDay.Count; staffIndex++) {
+				AllClients.UpdateData(AllStaffPerDay[staffIndex].ClientNames.Split("\r"), data.AllStaffPerDay[staffIndex].ClientNames.Split("\r"));
+			}
+
+			AllStaffPerDay.Clear();
+			AllStaffPerDay.AddRange(data.AllStaffPerDay);
+			Date = data.Date;
 		}
 	}
 }

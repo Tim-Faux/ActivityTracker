@@ -33,6 +33,7 @@ namespace ActivityTracker.Views
 		private SingleDay Friday = new();
 		private StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
 		private DispatcherTimer timer;
+		private IWParagraphCollection? importedTextAfterWeekSchedule = null;
 
 		public AllDaysPage()
         {
@@ -138,6 +139,10 @@ namespace ActivityTracker.Views
 								$"{clientName} X{clientsInActivity[clientName]}" :
 								clientName;
 						}
+						else {
+							clientTextBlock.Foreground = new SolidColorBrush(Colors.Black);
+							clientTextBlock.Text = clientName;
+						}
 					}
 				}
 			}
@@ -147,20 +152,26 @@ namespace ActivityTracker.Views
 		{
 			Monday.AllStaffPerDay.Clear();
 			Monday.CreateAllStaffPerDayList();
+			Monday.Date = null;
 
 			Tuesday.AllStaffPerDay.Clear();
 			Tuesday.CreateAllStaffPerDayList();
+			Tuesday.Date = null;
 
 			Wednesday.AllStaffPerDay.Clear();
 			Wednesday.CreateAllStaffPerDayList();
+			Wednesday.Date = null;
 
 			Thursday.AllStaffPerDay.Clear();
 			Thursday.CreateAllStaffPerDayList();
+			Thursday.Date = null;
 
 			Friday.AllStaffPerDay.Clear();
 			Friday.CreateAllStaffPerDayList();
+			Friday.Date = null;
 
 			AllClients.ClearAllClientsCount();
+			importedTextAfterWeekSchedule = null;
 			var clientTextBlockGrid = ClientListGrid.Children[0] as Grid;
 			if (clientTextBlockGrid != null ) 
 				clientTextBlockGrid.Children.Clear();
@@ -173,7 +184,7 @@ namespace ActivityTracker.Views
 			string fileName = $"week schedule {titleDate}.docx";
 			Assembly assembly = typeof(App).GetTypeInfo().Assembly;
 			SingleDay[] daysInWeek = { Monday, Tuesday, Wednesday, Thursday, Friday };
-			WordDocument document = WordDocumentFormater.FormatWeekScheduleDoc(daysInWeek);
+			WordDocument document = WordDocumentFormater.FormatWeekScheduleDoc(daysInWeek, importedTextAfterWeekSchedule);
 
 			if (!Monday.Date.HasValue || !Tuesday.Date.HasValue || !Wednesday.Date.HasValue || !Thursday.Date.HasValue || !Friday.Date.HasValue) {
 				DisplayWarning(new List<string> { "The document has been saved but there were dates missing. Please review and save again" });
@@ -184,6 +195,74 @@ namespace ActivityTracker.Views
 
 			document.Save(storageFolder.Path + "\\" + fileName, FormatType.Docx);
 			document.Close();
+		}
+
+		public async void ImportDataFromFile(object sender, RoutedEventArgs e)
+		{
+			var importedFileData = await WordDocumentImporter.ImportWordDocument();
+			var importedDays = importedFileData?.WeekScheduleTableData;
+			if (importedDays != null) {
+				importedTextAfterWeekSchedule = importedFileData?.TextAfterWeekSchedule;
+				var importMismatch = false;
+				ClearDate();
+
+				if(importedDays.ContainsKey(DaysOfTheWeek.Monday))
+					Monday.ImportData(importedDays[DaysOfTheWeek.Monday]);
+				else
+					importMismatch = true; 
+
+				if (importedDays.ContainsKey(DaysOfTheWeek.Tuesday))
+					Tuesday.ImportData(importedDays[DaysOfTheWeek.Tuesday]);
+				else
+					importMismatch = true; 
+
+				if (importedDays.ContainsKey(DaysOfTheWeek.Wednesday))
+					Wednesday.ImportData(importedDays[DaysOfTheWeek.Wednesday]);
+				else
+					importMismatch = true; 
+
+				if (importedDays.ContainsKey(DaysOfTheWeek.Thursday))
+					Thursday.ImportData(importedDays[DaysOfTheWeek.Thursday]);
+				else
+					importMismatch = true;
+
+				if (importedDays.ContainsKey(DaysOfTheWeek.Friday))
+					Friday.ImportData(importedDays[DaysOfTheWeek.Friday]);
+				else
+					importMismatch = true;
+
+				var mondayDate = importedFileData?.MondayDate ?? Monday.Date;
+				var dateImportErrors = VerifyDayOfWeek(mondayDate, DayOfWeek.Monday);
+				if (importMismatch) {
+					if (dateImportErrors != null && dateImportErrors.Count > 0) {
+						Monday.Date = null;
+						Tuesday.Date = null;
+						Wednesday.Date = null;
+						Thursday.Date = null;
+						Friday.Date = null;
+						DisplayWarning(new List<string> { "File successfully imported but table and date did not match expected formatting. Please review the data to ensure nothing was lost" });
+					}
+					else {
+						DisplayWarning(new List<string> { "File successfully imported but table did not match expected formatting. Please review the data to ensure nothing was lost" });
+					}
+				}
+				else {
+					if (dateImportErrors != null && dateImportErrors.Count > 0) {
+						Monday.Date = null;
+						Tuesday.Date = null;
+						Wednesday.Date = null;
+						Thursday.Date = null;
+						Friday.Date = null;
+						DisplayWarning(new List<string> { "File successfully imported but date did not match expected formatting. Please enter the intended date" });
+					}
+					else {
+						DisplaySuccess(new List<string> { "File successfully imported" });
+					}
+				}
+			}
+			else {
+				DisplayError(new List<string> { "File could not be imported. Please ensure the file's formatting is correct" });
+			}
 		}
 
 		private void SingleDay_DragOver(object sender, DragEventArgs e)
@@ -424,58 +503,67 @@ namespace ActivityTracker.Views
 		#region DateChanging handlers
 		private void SelectedMondayDateChanging(object sender, DateChangingEventArgs e)
 		{
-			VerifyDayOfWeek(e, DayOfWeek.Monday);
+			VerifyDayOfWeekFromCalenderPicker(e, DayOfWeek.Monday);
 		}
 
 		private void SelectedTuesdayDateChanging(object sender, DateChangingEventArgs e)
 		{
-			VerifyDayOfWeek(e, DayOfWeek.Tuesday);
+			VerifyDayOfWeekFromCalenderPicker(e, DayOfWeek.Tuesday);
 		}
 
 		private void SelectedWednesdayDateChanging(object sender, DateChangingEventArgs e)
 		{
-			VerifyDayOfWeek(e, DayOfWeek.Wednesday);
+			VerifyDayOfWeekFromCalenderPicker(e, DayOfWeek.Wednesday);
 		}
 
 		private void SelectedThursdayDateChanging(object sender, DateChangingEventArgs e)
 		{
-			VerifyDayOfWeek(e, DayOfWeek.Thursday);
+			VerifyDayOfWeekFromCalenderPicker(e, DayOfWeek.Thursday);
 		}
 
 		private void SelectedFridayDateChanging(object sender, DateChangingEventArgs e)
 		{
-			VerifyDayOfWeek(e, DayOfWeek.Friday);
+			VerifyDayOfWeekFromCalenderPicker(e, DayOfWeek.Friday);
 		}
 
-		private void VerifyDayOfWeek(DateChangingEventArgs e, DayOfWeek dayOfWeek)
+		private void VerifyDayOfWeekFromCalenderPicker(DateChangingEventArgs e, DayOfWeek dayOfWeek)
 		{
-			if (e.NewDate.HasValue) {
-				var date = e.NewDate.Value.Date;
+			var errors = VerifyDayOfWeek(e.NewDate, dayOfWeek);
+			if (errors != null) {
+				DisplayError(errors);
+				e.Cancel = true;
+			}
+		}
+
+		private List<string>? VerifyDayOfWeek(DateTimeOffset? newDate, DayOfWeek dayOfWeek)
+		{
+			if (newDate.HasValue) {
+				var date = newDate.Value.Date;
 				var errors = WeeklyDateVerifier.VerifyDate(date, dayOfWeek);
 				if (errors != null && errors.Count > 0) {
-					DisplayError(errors);
-					e.Cancel = true;
+					return errors;
 				}
 				else {
 					switch (dayOfWeek) {
 						case DayOfWeek.Monday:
 							SetNewDates(date);
-							break;
+							return null;
 						case DayOfWeek.Tuesday:
 							SetNewDates(date.AddDays(-1));
-							break;
+							return null;
 						case DayOfWeek.Wednesday:
 							SetNewDates(date.AddDays(-2));
-							break;
+							return null;
 						case DayOfWeek.Thursday:
 							SetNewDates(date.AddDays(-3));
-							break;
+							return null;
 						case DayOfWeek.Friday:
 							SetNewDates(date.AddDays(-4));
-							break;
+							return null;
 					}
 				}
 			}
+			return null;
 		}
 
 		private void SetNewDates(DateTime mondayDate)
@@ -485,6 +573,15 @@ namespace ActivityTracker.Views
 			wednesdayCalendar.SelectedDate = mondayDate.AddDays(2);
 			thursdayCalendar.SelectedDate = mondayDate.AddDays(3);
 			fridayCalendar.SelectedDate = mondayDate.AddDays(4);
+		}
+
+		private void ClearDate()
+		{
+			mondayCalendar.SelectedDate = null;
+			tuesdayCalendar.SelectedDate = null;
+			wednesdayCalendar.SelectedDate = null;
+			thursdayCalendar.SelectedDate = null;
+			fridayCalendar.SelectedDate = null;
 		}
 		#endregion
 	}
