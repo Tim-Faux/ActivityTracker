@@ -152,20 +152,26 @@ namespace ActivityTracker.Views
 		{
 			Monday.AllStaffPerDay.Clear();
 			Monday.CreateAllStaffPerDayList();
+			Monday.Date = null;
 
 			Tuesday.AllStaffPerDay.Clear();
 			Tuesday.CreateAllStaffPerDayList();
+			Tuesday.Date = null;
 
 			Wednesday.AllStaffPerDay.Clear();
 			Wednesday.CreateAllStaffPerDayList();
+			Wednesday.Date = null;
 
 			Thursday.AllStaffPerDay.Clear();
 			Thursday.CreateAllStaffPerDayList();
+			Thursday.Date = null;
 
 			Friday.AllStaffPerDay.Clear();
 			Friday.CreateAllStaffPerDayList();
+			Friday.Date = null;
 
 			AllClients.ClearAllClientsCount();
+			importedTextAfterWeekSchedule = null;
 			var clientTextBlockGrid = ClientListGrid.Children[0] as Grid;
 			if (clientTextBlockGrid != null ) 
 				clientTextBlockGrid.Children.Clear();
@@ -225,19 +231,33 @@ namespace ActivityTracker.Views
 				else
 					importMismatch = true;
 
+				var mondayDate = importedFileData?.MondayDate ?? Monday.Date;
+				var dateImportErrors = VerifyDayOfWeek(mondayDate, DayOfWeek.Monday);
 				if (importMismatch) {
-					var dateImportErrors = VerifyDayOfWeek(importedDays[DaysOfTheWeek.Monday].Date, DayOfWeek.Monday);
-					if (dateImportErrors != null && dateImportErrors.Count > 0)
+					if (dateImportErrors != null && dateImportErrors.Count > 0) {
+						Monday.Date = null;
+						Tuesday.Date = null;
+						Wednesday.Date = null;
+						Thursday.Date = null;
+						Friday.Date = null;
 						DisplayWarning(new List<string> { "File successfully imported but table and date did not match expected formatting. Please review the data to ensure nothing was lost" });
-					else
+					}
+					else {
 						DisplayWarning(new List<string> { "File successfully imported but table did not match expected formatting. Please review the data to ensure nothing was lost" });
+					}
 				}
 				else {
-					var dateImportErrors = VerifyDayOfWeek(importedDays[DaysOfTheWeek.Monday].Date, DayOfWeek.Monday);
-					if (dateImportErrors != null && dateImportErrors.Count > 0)
+					if (dateImportErrors != null && dateImportErrors.Count > 0) {
+						Monday.Date = null;
+						Tuesday.Date = null;
+						Wednesday.Date = null;
+						Thursday.Date = null;
+						Friday.Date = null;
 						DisplayWarning(new List<string> { "File successfully imported but date did not match expected formatting. Please enter the intended date" });
-					else
+					}
+					else {
 						DisplaySuccess(new List<string> { "File successfully imported" });
+					}
 				}
 			}
 			else {
