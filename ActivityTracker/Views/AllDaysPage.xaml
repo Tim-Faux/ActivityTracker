@@ -16,7 +16,7 @@
             <ItemContainer IsTabStop="False">
                 <Grid IsTabStop="False"  Background="LightGray" AllowDrop="True" DragOver="SingleDay_DragOver" Drop="SingleDay_Drop">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="150"/>
                     </Grid.RowDefinitions>
                     <Grid Grid.Row="0">
@@ -27,12 +27,13 @@
                         <TextBox x:Name="ActivityEditor"
                             Text="{x:Bind Activity, Mode=TwoWay}"
                             AcceptsReturn="False"
+                            TextWrapping="Wrap"
                             Background="White"
                             PlaceholderText="Enter staff activity"
                             Grid.Column="0"/>
                         <TextBox x:Name="StaffEditor"
                             Text="{x:Bind StaffName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                            AcceptsReturn="False"
+                            AcceptsReturn="True"
                             Background="White"
                             PlaceholderText="Enter your staff"
                             Grid.Column="1"/>

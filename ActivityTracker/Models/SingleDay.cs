@@ -35,7 +35,7 @@ namespace ActivityTracker.Models
 		{
 			var staffList = new List<string>();
 			foreach (var staff in AllStaffPerDay) {
-				staffList.Add(staff.StaffName);
+				staffList.AddRange(staff.StaffName.Split('\r'));
 			}
 			return staffList;
 		}

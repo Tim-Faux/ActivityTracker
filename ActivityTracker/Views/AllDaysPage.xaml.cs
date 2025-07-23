@@ -433,7 +433,8 @@ namespace ActivityTracker.Views
 			var allStaffActiveInDay = GetStaffInDroppedColumn();
 			var staffCanBePlacedErrors = staffVerifier.VerifyStaff(draggedStaff, allStaffActiveInDay);
 			if (staffCanBePlacedErrors.Count == 0) {
-				textbox.Text = draggedStaff + Environment.NewLine;
+				textbox.Text += string.IsNullOrWhiteSpace(textbox.Text) || textbox.Text.EndsWith('\r') ? string.Empty : Environment.NewLine;
+				textbox.Text += draggedStaff;
 			}
 			else {
 				DisplayError(staffCanBePlacedErrors);
