@@ -180,7 +180,7 @@ namespace ActivityTracker.Views
 
 		public async void SaveToDocument(object sender, RoutedEventArgs e)
 		{
-			string titleDate = Monday.Date.HasValue ? Monday.Date.Value.ToString("M.d") : DateTime.Now.ToString("M.d");
+			string titleDate = Monday.Date.HasValue ? Monday.Date.Value.ToString("M.d") : GetWeeksMondayDateFromDate(DateTime.Now).ToString("M.d");
 			string fileName = $"week schedule {titleDate}.docx";
 
 			var folder = await StorageFolder.GetFolderFromPathAsync(storageFolder.Path);
@@ -208,6 +208,27 @@ namespace ActivityTracker.Views
 			else {
 				SaveFile(fileName);
 			}
+		}
+
+		private DateTime GetWeeksMondayDateFromDate(DateTime selectedDate)
+		{
+			switch (selectedDate.DayOfWeek) {
+				case DayOfWeek.Monday:
+					return selectedDate;
+				case DayOfWeek.Tuesday:
+					return selectedDate.AddDays(-1);
+				case DayOfWeek.Wednesday:
+					return selectedDate.AddDays(-2);
+				case DayOfWeek.Thursday:
+					return selectedDate.AddDays(-3);
+				case DayOfWeek.Friday:
+					return selectedDate.AddDays(-4);
+				case DayOfWeek.Saturday:
+					return selectedDate.AddDays(-5);
+				case DayOfWeek.Sunday:
+					return selectedDate.AddDays(-6);
+			}
+			return selectedDate;
 		}
 
 		private void SaveFile(string fileName)
