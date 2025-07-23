@@ -17,6 +17,8 @@ using Syncfusion.UI.Xaml.Calendar;
 using Syncfusion.UI.Xaml.Editors;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
+using Windows.Storage.Pickers;
+using WinRT.Interop;
 
 namespace ActivityTracker.Views
 {
@@ -178,13 +180,57 @@ namespace ActivityTracker.Views
 			ImportClients();
 		}
 
-		public void SaveToDocument(object sender, RoutedEventArgs e)
+		public async void SaveToDocument(object sender, RoutedEventArgs e)
 		{
-			string titleDate = Monday.Date.HasValue ? Monday.Date.Value.ToString("M.d") : DateTime.Now.ToString("M.d");
-			string fileName = $"week schedule {titleDate}.docx";
-			Assembly assembly = typeof(App).GetTypeInfo().Assembly;
-			SingleDay[] daysInWeek = { Monday, Tuesday, Wednesday, Thursday, Friday };
+			string titleDate = Monday.Date.HasValue ? Monday.Date.Value.ToString("M.d") : GetWeeksMondayDateFromDate(DateTime.Now).ToString("M.d");
+			string suggestedFileName = $"week schedule {titleDate}.docx";
+
+			var savePicker = new FileSavePicker 
+			{
+				SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+				SuggestedFileName = suggestedFileName
+			};
+			savePicker.FileTypeChoices.Add("Word Documents", new List<string>() { ".docx" });
+
+			nint windowHandle = WindowNative.GetWindowHandle(App.m_window);
+			InitializeWithWindow.Initialize(savePicker, windowHandle);
+			StorageFile file = await savePicker.PickSaveFileAsync();
+			if (file != null) {
+				SaveFile(file);
+			}
+			else {
+				DisplayWarning(new List<string> { "The save opperation was cancelled. Please review and save again" });
+			}
+		}
+
+		private DateTime GetWeeksMondayDateFromDate(DateTime selectedDate)
+		{
+			switch (selectedDate.DayOfWeek) {
+				case DayOfWeek.Monday:
+					return selectedDate;
+				case DayOfWeek.Tuesday:
+					return selectedDate.AddDays(-1);
+				case DayOfWeek.Wednesday:
+					return selectedDate.AddDays(-2);
+				case DayOfWeek.Thursday:
+					return selectedDate.AddDays(-3);
+				case DayOfWeek.Friday:
+					return selectedDate.AddDays(-4);
+				case DayOfWeek.Saturday:
+					return selectedDate.AddDays(-5);
+				case DayOfWeek.Sunday:
+					return selectedDate.AddDays(-6);
+			}
+			return selectedDate;
+		}
+
+		private void SaveFile(StorageFile file)
+		{
+			var daysInWeek = new SingleDay[] { Monday, Tuesday, Wednesday, Thursday, Friday };
 			WordDocument document = WordDocumentFormater.FormatWeekScheduleDoc(daysInWeek, importedTextAfterWeekSchedule);
+
+			document.Save(file.Path, FormatType.Docx);
+			document.Close();
 
 			if (!Monday.Date.HasValue || !Tuesday.Date.HasValue || !Wednesday.Date.HasValue || !Thursday.Date.HasValue || !Friday.Date.HasValue) {
 				DisplayWarning(new List<string> { "The document has been saved but there were dates missing. Please review and save again" });
@@ -192,9 +238,6 @@ namespace ActivityTracker.Views
 			else {
 				DisplaySuccess(new List<string> { "The document has been successful saved" });
 			}
-
-			document.Save(storageFolder.Path + "\\" + fileName, FormatType.Docx);
-			document.Close();
 		}
 
 		public async void ImportDataFromFile(object sender, RoutedEventArgs e)
