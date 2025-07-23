@@ -17,6 +17,8 @@ using Syncfusion.UI.Xaml.Calendar;
 using Syncfusion.UI.Xaml.Editors;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
+using Windows.Storage.Pickers;
+using WinRT.Interop;
 
 namespace ActivityTracker.Views
 {
@@ -181,32 +183,23 @@ namespace ActivityTracker.Views
 		public async void SaveToDocument(object sender, RoutedEventArgs e)
 		{
 			string titleDate = Monday.Date.HasValue ? Monday.Date.Value.ToString("M.d") : GetWeeksMondayDateFromDate(DateTime.Now).ToString("M.d");
-			string fileName = $"week schedule {titleDate}.docx";
+			string suggestedFileName = $"week schedule {titleDate}.docx";
 
-			var folder = await StorageFolder.GetFolderFromPathAsync(storageFolder.Path);
-			var fileAlreadyExists = await folder.TryGetItemAsync(fileName) != null;
-			if (fileAlreadyExists) {
-				ContentDialog replaceFileDialog = new ContentDialog
-				{
-					XamlRoot = this.Content.XamlRoot,
-					Title = "Warning: file with the same date detected!",
-					Content = "A file with this date already exists, are you sure want to replace it? This is a permenant action and will overwrite the file!",
-					PrimaryButtonText = "Replace",
-					CloseButtonText = "Cancel",
-					DefaultButton = ContentDialogButton.Close,
+			var savePicker = new FileSavePicker 
+			{
+				SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+				SuggestedFileName = suggestedFileName
+			};
+			savePicker.FileTypeChoices.Add("Word Documents", new List<string>() { ".docx" });
 
-				};
-
-				ContentDialogResult result = await replaceFileDialog.ShowAsync();
-				if (result == ContentDialogResult.Primary) {
-					SaveFile(fileName);
-				}
-				else {
-					DisplayWarning(new List<string> { "The save opperation was cancelled. Please review and save again" });
-				}
+			nint windowHandle = WindowNative.GetWindowHandle(App.m_window);
+			InitializeWithWindow.Initialize(savePicker, windowHandle);
+			StorageFile file = await savePicker.PickSaveFileAsync();
+			if (file != null) {
+				SaveFile(file);
 			}
 			else {
-				SaveFile(fileName);
+				DisplayWarning(new List<string> { "The save opperation was cancelled. Please review and save again" });
 			}
 		}
 
@@ -231,19 +224,20 @@ namespace ActivityTracker.Views
 			return selectedDate;
 		}
 
-		private void SaveFile(string fileName)
+		private void SaveFile(StorageFile file)
 		{
+			var daysInWeek = new SingleDay[] { Monday, Tuesday, Wednesday, Thursday, Friday };
+			WordDocument document = WordDocumentFormater.FormatWeekScheduleDoc(daysInWeek, importedTextAfterWeekSchedule);
+
+			document.Save(file.Path, FormatType.Docx);
+			document.Close();
+
 			if (!Monday.Date.HasValue || !Tuesday.Date.HasValue || !Wednesday.Date.HasValue || !Thursday.Date.HasValue || !Friday.Date.HasValue) {
 				DisplayWarning(new List<string> { "The document has been saved but there were dates missing. Please review and save again" });
 			}
 			else {
 				DisplaySuccess(new List<string> { "The document has been successful saved" });
 			}
-
-			var daysInWeek = new SingleDay[] { Monday, Tuesday, Wednesday, Thursday, Friday };
-			WordDocument document = WordDocumentFormater.FormatWeekScheduleDoc(daysInWeek, importedTextAfterWeekSchedule);
-			document.Save(storageFolder.Path + "\\" + fileName, FormatType.Docx);
-			document.Close();
 		}
 
 		public async void ImportDataFromFile(object sender, RoutedEventArgs e)
