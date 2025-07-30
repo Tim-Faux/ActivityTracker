@@ -154,23 +154,23 @@ namespace ActivityTracker.Views
 		{
 			Monday.AllStaffPerDay.Clear();
 			Monday.CreateAllStaffPerDayList();
-			Monday.Date = null;
+			mondayCalendar.SelectedDate = null;
 
 			Tuesday.AllStaffPerDay.Clear();
 			Tuesday.CreateAllStaffPerDayList();
-			Tuesday.Date = null;
+			tuesdayCalendar.SelectedDate = null;
 
 			Wednesday.AllStaffPerDay.Clear();
 			Wednesday.CreateAllStaffPerDayList();
-			Wednesday.Date = null;
+			wednesdayCalendar.SelectedDate = null;
 
 			Thursday.AllStaffPerDay.Clear();
 			Thursday.CreateAllStaffPerDayList();
-			Thursday.Date = null;
+			thursdayCalendar.SelectedDate = null;
 
 			Friday.AllStaffPerDay.Clear();
 			Friday.CreateAllStaffPerDayList();
-			Friday.Date = null;
+			fridayCalendar.SelectedDate = null;
 
 			AllClients.ClearAllClientsCount();
 			importedTextAfterWeekSchedule = null;
