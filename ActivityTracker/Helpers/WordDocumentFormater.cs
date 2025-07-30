@@ -90,7 +90,7 @@ namespace ActivityTracker.Helpers
 					textRange.CharacterFormat.TextColor = Color.Red;
 					textRange.CharacterFormat.FontName = "Aptos (body)";
 
-					textRange = paragraph.AppendText($"{singleDayInformation.StaffName}{Environment.NewLine}");
+					textRange = paragraph.AppendText($"{singleDayInformation.StaffName.Replace("\r", ", ")}{Environment.NewLine}");
 					textRange.CharacterFormat.TextColor = Color.Blue;
 					textRange.CharacterFormat.FontName = "Aptos (body)";
 
