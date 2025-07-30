@@ -8,6 +8,7 @@ using Syncfusion.DocIO;
 using System.IO;
 using System.Collections.Generic;
 using ActivityTracker.Models;
+using Syncfusion.Drawing;
 
 namespace ActivityTracker.Helpers
 {
@@ -92,30 +93,76 @@ namespace ActivityTracker.Helpers
 
 		private static ActivityAndStaff GetActivityAndStaff(IWParagraphCollection paragraphs)
 		{
-			var lineOneSplit = paragraphs[0].ChildEntities;
+			var activityAndStaff = new ActivityAndStaff();
+			var linesToRemove = new Stack<int>();
+			for (var i = 0; i < paragraphs.Count; i++) {
+				var paragraphEntities = paragraphs[i].ChildEntities;
+				var activityOrStaffInLine = false;
+				foreach (var paragraphEntity in paragraphEntities) {
+					var textRange = paragraphEntity as WTextRange;
+					if (textRange != null) {
+						var activityAndStaffInLine = ParseActivityAndStaff(textRange);
+						if (!string.IsNullOrWhiteSpace(activityAndStaffInLine.Activity) &&
+							string.IsNullOrWhiteSpace(activityAndStaff.Activity)) {
+							activityAndStaff.Activity = activityAndStaffInLine.Activity;
+							activityOrStaffInLine = true;
+						}
+						if (!string.IsNullOrWhiteSpace(activityAndStaffInLine.Staff)) {
+							if(!string.IsNullOrWhiteSpace(activityAndStaff.Staff) && !activityAndStaff.Staff.EndsWith('\r'))
+								activityAndStaff.Staff += "\r";
+							activityAndStaff.Staff += activityAndStaffInLine.Staff;
+							activityOrStaffInLine = true;
+						}
+					}
+				}
+				if (activityOrStaffInLine) {
+					linesToRemove.Push(i);
+				}
+			}
+
+			while (linesToRemove.Count > 0) {
+				paragraphs.RemoveAt(linesToRemove.Pop());
+			}
+
+			return activityAndStaff;
+		}
+
+		private static ActivityAndStaff ParseActivityAndStaff(WTextRange textRange)
+		{
 			var activity = string.Empty;
 			var staff = string.Empty;
-			if (lineOneSplit.Count == 1) {
-				var splitTextRangeOne = lineOneSplit[0] as WTextRange;
-
-				if (splitTextRangeOne != null) {
-					if (splitTextRangeOne.Text.EndsWith(" "))
-						activity = splitTextRangeOne.Text.Trim();
-					else
-						staff = splitTextRangeOne.Text.Trim();
+			var textColor = textRange.CharacterFormat.TextColor;
+			if (IsRed(textColor)) {
+				activity += textRange.Text.Trim();
+			}
+			else if (IsBlue(textColor)) {
+				foreach (var staffName in textRange.Text.Split(',')) {
+					if (!string.IsNullOrWhiteSpace(staff) && !staff.EndsWith('\r'))
+						staff += ",\r";
+					staff += staffName.Trim();
 				}
-				paragraphs.RemoveAt(0);
 			}
-			else if (lineOneSplit.Count == 2) {
-				var splitTextRangeOne = lineOneSplit[0] as WTextRange;
-				activity = splitTextRangeOne != null ? splitTextRangeOne.Text.Trim() : string.Empty;
-				var splitTextRangeTwo = lineOneSplit[1] as WTextRange;
-				staff = splitTextRangeTwo != null ? splitTextRangeTwo.Text.Trim() : string.Empty;
-
-				paragraphs.RemoveAt(0);
-			}
-
 			return new ActivityAndStaff { Activity = activity, Staff = staff };
+		}
+
+		private static bool IsRed(Color color)
+		{
+			if ((color.IsNamedColor && color.Name == Color.Red.Name) || color.ToArgb() == Color.Red.ToArgb())
+				return true;
+			if (color.GetSaturation() > 0.1 && color.GetBrightness() > 0.1 && color.GetBrightness() < 0.95)
+				if (color.GetHue() < 30 || color.GetHue() > 325)
+					return true;
+			return false;
+		}
+
+		private static bool IsBlue(Color color)
+		{
+			if ((color.IsNamedColor && color.Name == Color.Blue.Name) || color.ToArgb() == Color.Blue.ToArgb())
+				return true;
+			if (color.GetSaturation() > 0.1 && color.GetBrightness() > 0.1 && color.GetBrightness() < 0.95)
+				if (color.GetHue() > 150 && color.GetHue() < 280) 
+					return true;
+			return false;
 		}
 
 		private static string GetClients(IWParagraphCollection paragraph)
