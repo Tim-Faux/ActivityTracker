@@ -49,40 +49,48 @@ namespace ActivityTracker.Views
 			timer = new DispatcherTimer();
 		}
 
-		private void ImportStaff()
+		private void ImportStaff(List<string>? staffNames = null)
 		{
-			List<string> staffNames = new List<string>();
-			Task.Run(async () => staffNames = await StaffNameImporter.ImportStaff()).Wait();
+			if (staffNames is null) {
+				Task.Run(async () => staffNames = await StaffNameImporter.ImportStaff()).Wait();
+			}
+			StaffListGrid.Children.Clear();
 
 			int row = 0;
 			foreach (var staffName in staffNames) {
-				var rowDef = new RowDefinition();
-				rowDef.Height = GridLength.Auto;
-				StaffListGrid.RowDefinitions.Add(rowDef);
-				
-				var staffTextBox = CreateDragableTextbox(staffName.Trim(), TextBoxType.Staff);
-				Grid.SetRow(staffTextBox, row);
-				StaffListGrid.Children.Add(staffTextBox);
+				if (!string.IsNullOrWhiteSpace(staffName)) {
+					var rowDef = new RowDefinition();
+					rowDef.Height = GridLength.Auto;
+					StaffListGrid.RowDefinitions.Add(rowDef);
 
-				row++;
+					var staffTextBox = CreateDragableTextbox(staffName.Trim(), TextBoxType.Staff);
+					Grid.SetRow(staffTextBox, row);
+					StaffListGrid.Children.Add(staffTextBox);
+
+					row++;
+				}
 			}
 		}
-		private void ImportClients()
+		private void ImportClients(List<string>? clientNames = null)
 		{
-			List<string> clientNames = new List<string>();
-			Task.Run(async () => clientNames = await ClientNameImporter.ImportClients()).Wait();
+			if (clientNames is null) {
+				Task.Run(async () => clientNames = await ClientNameImporter.ImportClients()).Wait();
+			}
+			ClientListGrid.Children.Clear();
 
 			int row = 0;
 			foreach (var clientName in clientNames) {
-				var rowDef = new RowDefinition();
-				rowDef.Height = GridLength.Auto;
-				ClientListGrid.RowDefinitions.Add(rowDef);
+				if (!string.IsNullOrWhiteSpace(clientName)) {
+					var rowDef = new RowDefinition();
+					rowDef.Height = GridLength.Auto;
+					ClientListGrid.RowDefinitions.Add(rowDef);
 
-				var clientTextBox = CreateDragableTextbox(clientName.Trim(), TextBoxType.Client);
-				Grid.SetRow(clientTextBox, row);
-				ClientListGrid.Children.Add(clientTextBox);
+					var clientTextBox = CreateDragableTextbox(clientName.Trim(), TextBoxType.Client);
+					Grid.SetRow(clientTextBox, row);
+					ClientListGrid.Children.Add(clientTextBox);
 
-				row++;
+					row++;
+				}
 			}
 		}
 
@@ -628,5 +636,63 @@ namespace ActivityTracker.Views
 			fridayCalendar.SelectedDate = null;
 		}
 		#endregion
+
+		private async void EditClientList_Click(object sender, RoutedEventArgs e)
+		{
+			var newClientText = await ShowEditDialog(true);
+			if (newClientText is not null)
+				ImportClients(newClientText.Split('\r').ToList());
+		}
+
+		private async void EditStaffList_Click(object sender, RoutedEventArgs e)
+		{
+			var newStaffText = await ShowEditDialog(false);
+			if(newStaffText is not null)
+				ImportStaff(newStaffText.Split('\r').ToList());
+		}
+
+		private async Task<string?> ShowEditDialog(bool isClientList)
+		{
+			var text = new TextBlock
+			{
+				Text = "Review " + (isClientList ? "client " : "staff ") + "list:",
+				Margin = new Thickness(10)
+			};
+
+			var currentNamesList = isClientList ? await ClientNameImporter.ImportClients() : await StaffNameImporter.ImportStaff();
+			var currentNames = string.Join('\r', currentNamesList);
+			var namesTextbox = new TextBox
+			{
+				Width = 500,
+				Margin = new Thickness(10),
+				AcceptsReturn = true,
+			};
+			namesTextbox.Text = currentNames;
+
+			var content = new StackPanel();
+			content.Children.Insert(0, text);
+			content.Children.Insert(1, namesTextbox);
+
+			ContentDialog EditDialog = new ContentDialog
+			{
+				XamlRoot = this.Content.XamlRoot,
+				Title = "Review " + (isClientList ? "clients" : "staff"),
+				Content = content,
+				PrimaryButtonText = "Enter",
+				CloseButtonText = "Cancel",
+				DefaultButton = ContentDialogButton.None
+			};
+
+			ContentDialogResult result = await EditDialog.ShowAsync();
+			if (result == ContentDialogResult.Primary && isClientList) {
+				await ClientNameSaver.SaveClients(namesTextbox.Text);
+				return namesTextbox.Text;
+			}
+			else if (result == ContentDialogResult.Primary && !isClientList) {
+				await StaffNameSaver.SaveStaff(namesTextbox.Text);
+				return namesTextbox.Text;
+			}
+			return null;
+		}
 	}
 }
