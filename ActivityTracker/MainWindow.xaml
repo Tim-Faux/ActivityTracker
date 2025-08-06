@@ -29,7 +29,12 @@
         </TitleBar>
 
         <Grid Name="SyncfusionLicenseError" Background="OrangeRed" Grid.Row="1" Visibility="Collapsed">
-            <TextBlock Margin="10" FontSize="30" HorizontalAlignment="Center" Text="Error: Your Syncfusion license is missing or out of date! Please check your license and relaunch this program"/>
+            <RichTextBlock Margin="10" FontSize="30" HorizontalAlignment="Center">
+                <Paragraph>
+                    <Run>Error: Your Syncfusion license is missing or out of date! Please enter your license </Run>
+                    <Hyperlink Click="SyncfusionLicenseLink_Click">Here</Hyperlink>
+                </Paragraph>
+            </RichTextBlock>
         </Grid>
         <Frame x:Name="rootFrame" Grid.Row="2" SourcePageType="views:AllDaysPage"/>
     </Grid>
